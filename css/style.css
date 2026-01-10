@@ -1,31 +1,58 @@
-/* 変数の定義：色を変えるだけでサイト全体の雰囲気を変えられます */
+/* Google Fontsから太くてポップなフォントを読み込む */
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Noto+Sans+JP:wght@900&display=swap');
+
 :root {
-    --main-color: #ff3e81; /* ポップなピンク */
-    --accent-color: #00e5ff; /* 鮮やかな水色 */
-    --bg-color: #ffffff;
-    --text-color: #333333;
+    --bg-color: #ffde00;    /* エネルギッシュな黄色 */
+    --main-text: #000000;   /* パキッとした黒 */
+    --accent-color: #ff3e81; /* 差し色のピンク */
 }
 
 body {
+    background-color: var(--bg-color);
+    color: var(--main-text);
+    font-family: 'Archivo Black', 'Noto Sans JP', sans-serif;
     margin: 0;
-    font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif;
-    color: var(--text-color);
-}
-
-/* ヒーローセクション：画面いっぱいにキャッチコピーを出す */
-#hero {
-    height: 100vh;
+    padding: 0;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    background: linear-gradient(45deg, var(--main-color), var(--accent-color));
-    color: white;
-    text-align: center;
 }
 
-#hero h1 {
-    font-size: 4rem; /* MacのRetinaディスプレイで映える大きな文字 */
-    margin-bottom: 1rem;
-    letter-spacing: 0.1rem;
+h1 {
+    font-size: 8vw; /* 画面幅に合わせて「でかく」なる文字 */
+    text-transform: uppercase;
+    margin: 40px 0;
+    line-height: 0.9;
+    text-align: center;
+    /* 文字の縁取り（ポップさを強調） */
+    -webkit-text-stroke: 2px var(--main-text);
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+}
+
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.video-item {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9の比率を維持 */
+    background: #000;
+    border: 5px solid var(--main-text); /* 黒い枠線でポップに */
+    box-shadow: 10px 10px 0px var(--main-text); /* 影をつけて立体的に */
+}
+
+.video-item iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
