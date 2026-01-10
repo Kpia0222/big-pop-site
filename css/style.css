@@ -68,11 +68,11 @@ body.is-ready #layer-entrance {
 
     0%,
     100% {
-        transform: translateY(1px) rotate(-1deg);
+        transform: translateY(0px) rotate(0deg);
     }
 
     50% {
-        transform: translateY(-1px) rotate(0deg);
+        transform: translateY(-0px) rotate(0deg);
 
     }
 
@@ -235,9 +235,13 @@ body.is-ready .bubble {
     animation:
         float-bubble 12s infinite ease-in-out,
         morph-bubble 8s infinite ease-in-out;
+
+
+
+    transform-origin: center;
 }
 
-/* 形状変形：border-radius の変化を緩やかにして安定させる */
+/* 1. 形状変形（よりグニャグニャとした動き） */
 @keyframes morph-bubble {
 
     0%,
@@ -245,12 +249,37 @@ body.is-ready .bubble {
         border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%;
     }
 
-    33% {
-        border-radius: 55% 45% 52% 48% / 48% 52% 50% 50%;
+    25% {
+        border-radius: 60% 40% 55% 45% / 45% 55% 45% 55%;
     }
 
-    66% {
-        border-radius: 48% 52% 55% 45% / 52% 48% 53% 47%;
+    50% {
+        border-radius: 45% 55% 40% 60% / 55% 45% 60% 40%;
+    }
+
+    75% {
+        border-radius: 55% 45% 50% 50% / 45% 55% 50% 50%;
+    }
+}
+
+/* 2. 浮遊（大きな8の字のような軌道と回転） */
+@keyframes float-bubble {
+
+    0%,
+    100% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+
+    25% {
+        transform: translate(15px, -25px) rotate(3deg);
+    }
+
+    50% {
+        transform: translate(-10px, -45px) rotate(-2deg);
+    }
+
+    75% {
+        transform: translate(-20px, -20px) rotate(1deg);
     }
 }
 
@@ -290,41 +319,48 @@ body.is-ready .bubble {
 .b5 {
     width: 220px;
     height: 220px;
-    bottom: 2%;
-    left: 38%;
+    bottom: -5%;
+    left: 45%;
 }
 
 /* --- 各シャボン玉の色指定（ほんのほんの少しだけ薄く、透明感重視） --- */
 
 /* MUSIC: ローズ */
-.b1 { 
+.b1 {
     background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), rgba(220, 130, 130, 0.28) 55%, rgba(180, 90, 90, 0.12));
     box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.45), inset 10px -10px 25px rgba(200, 110, 110, 0.25), 0 10px 20px rgba(0, 0, 0, 0.06);
 }
 
 /* MIX: アンバー */
-.b2 { 
+.b2 {
     background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), rgba(220, 205, 140, 0.28) 55%, rgba(180, 165, 110, 0.12));
     box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.45), inset 10px -10px 25px rgba(200, 185, 120, 0.25), 0 10px 20px rgba(0, 0, 0, 0.06);
 }
 
 /* SING: セルリアン */
-.b3 { 
+.b3 {
     background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), rgba(150, 180, 225, 0.28) 55%, rgba(110, 140, 185, 0.12));
     box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.45), inset 10px -10px 25px rgba(120, 150, 205, 0.25), 0 10px 20px rgba(0, 0, 0, 0.06);
 }
 
 /* PLAY: アメジスト */
-.b4 { 
+.b4 {
     background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), rgba(180, 150, 225, 0.28) 55%, rgba(140, 110, 185, 0.12));
     box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.45), inset 10px -10px 25px rgba(150, 120, 205, 0.25), 0 10px 20px rgba(0, 0, 0, 0.06);
 }
 
 /* LIVE: ピスタチオ */
-.b5 { 
+.b5 {
     background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), rgba(170, 205, 150, 0.28) 55%, rgba(120, 165, 110, 0.12));
     box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.45), inset 10px -10px 25px rgba(140, 185, 120, 0.25), 0 10px 20px rgba(0, 0, 0, 0.06);
 }
+
+/* 各バブルの「ふわふわ感」に個性を出す（アニメーション速度をバラバラにする） */
+.b1 { animation-duration: 18s, 12s; animation-delay: 0s, -2s; }
+.b2 { animation-duration: 22s, 9s;  animation-delay: -5s, 0s; }
+.b3 { animation-duration: 20s, 11s; animation-delay: -2s, -4s; }
+.b4 { animation-duration: 16s, 8s;  animation-delay: -7s, -1s; }
+.b5 { animation-duration: 25s, 13s; animation-delay: -3s, -5s; }
 
 
 /* 中央下 */
@@ -351,22 +387,76 @@ body.is-ready .bubble {
     }
 }
 
-/* 文字の強調 */
-.bubble span {
-    font-size: 1.5rem;
-    /* さらに大きく */
-    letter-spacing: 0.2rem;
-    /* 文字間隔を広げて高級感を */
-    font-weight: 900;
-    /* 極太に */
-    text-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
-    /* 文字からも光が漏れているように */
+
+/* SVGキャンバスを確実に全画面に広げる */
+#bubble-lines {
+    position: fixed; /* absoluteより確実に固定 */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 1; /* ロゴ(2)より下、背景(0)より上 */
 }
+
+#bubble-lines path {
+    stroke-linecap: round;
+    /* 線の色をよりはっきりと白く */
+    stroke: rgba(255, 255, 255, 0.6);
+    /* 太さをしっかり出す */
+    stroke-width: 4; 
+    
+    /* ぼんやりと光るエフェクト（これが濃く見えるポイントです） */
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.5));
+    
+    transition: opacity 0.5s ease;
+}
+
+/* 弾けるときの線の消え方を少しドラマチックに */
+.line-hidden {
+    opacity: 0 !important;
+    stroke-width: 0;
+    transition: all 0.3s ease-out;
+}
+
+
+
+
+#bubble-lines path {
+    stroke-linecap: round;
+    /* 線の先端をぼかすためのフィルタ */
+    filter: blur(1px);
+    transition: opacity 0.5s;
+}
+
+/* 弾けたシャボン玉の線は消すためのクラス */
+.line-hidden {
+    opacity: 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @media screen and (max-width: 768px) {
     #main-logo {
-        width: 130px; /* ロゴも少しだけ小ぶりに */
+        width: 130px;
+        /* ロゴも少しだけ小ぶりに */
     }
 
     .bubble span {
@@ -375,12 +465,47 @@ body.is-ready .bubble {
 
     /* 5つの泡を画面の上から中央にかけて「ロゴを囲むように」配置 */
     /* topの数値を小さくして、全体を上に持ち上げています */
-    
-    .b1 { width: 130px; height: 130px; top: 5%;  left: 5%; }    /* MUSIC (左上) */
-    .b2 { width: 100px; height: 100px; top: 15%; left: 65%; }   /* MIX (右上) */
-    .b3 { width: 120px; height: 120px; top: 40%; left: -5%; }   /* SING (左中央) */
-    .b4 { width: 100px; height: 100px; top: 50%; left: 70%; }   /* PLAY (右中央) */
-    .b5 { width: 110px; height: 110px; top: 65%; left: 35%; }   /* LIVE (ロゴのすぐ下) */
+
+    .b1 {
+        width: 130px;
+        height: 130px;
+        top: 5%;
+        left: 5%;
+    }
+
+    /* MUSIC (左上) */
+    .b2 {
+        width: 100px;
+        height: 100px;
+        top: 15%;
+        left: 65%;
+    }
+
+    /* MIX (右上) */
+    .b3 {
+        width: 120px;
+        height: 120px;
+        top: 40%;
+        left: -5%;
+    }
+
+    /* SING (左中央) */
+    .b4 {
+        width: 100px;
+        height: 100px;
+        top: 50%;
+        left: 70%;
+    }
+
+    /* PLAY (右中央) */
+    .b5 {
+        width: 110px;
+        height: 110px;
+        top: 75%;
+        left: 35%;
+    }
+
+    /* LIVE (ロゴのすぐ下) */
 
     /* 泡が画面の横にはみ出しすぎないよう調整 */
     #layer-entrance {

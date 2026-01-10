@@ -42,4 +42,57 @@ function popBubble(element) {
     }, 300);
 }
 
-// 既存のDOMContentLoaded内に変更はありません
+let time = 0;
+
+function updateLines() {
+    const logo = document.getElementById('main-logo');
+    if (!logo) return;
+
+    const logoRect = logo.getBoundingClientRect();
+    const logoR = logoRect.width / 2.5; // ロゴの半径（少し内側に調整）
+    const logoX = logoRect.left + logoRect.width / 2;
+    const logoY = logoRect.top + logoRect.height / 2;
+
+    time += 0.02;
+
+    for (let i = 1; i <= 5; i++) {
+        const bubble = document.querySelector(`.b${i}`);
+        const path = document.getElementById(`line-b${i}`);
+        
+        if (bubble && path && !bubble.classList.contains('popped')) {
+            const bRect = bubble.getBoundingClientRect();
+            const bR = bRect.width / 2; // シャボン玉の半径
+            const bX = bRect.left + bRect.width / 2;
+            const bY = bRect.top + bRect.height / 2;
+
+            // 1. ロゴとバブルの間の角度を計算
+            const angle = Math.atan2(bY - logoY, bX - logoX);
+
+            // 2. 開始点：ロゴの外周（端）
+            const startX = logoX + Math.cos(angle) * logoR;
+            const startY = logoY + Math.sin(angle) * logoR;
+
+            // 3. 終了点：シャボン玉の外周（端）
+            const endX = bX - Math.cos(angle) * bR;
+            const endY = bY - Math.sin(angle) * bR;
+
+            // 4. ぐにゃぐにゃの制御点
+            const waveX = Math.sin(time + i) * 40;
+            const waveY = Math.cos(time * 0.8 + i) * 40;
+            const cpX = (startX + endX) / 2 + waveX;
+            const cpY = (startY + endY) / 2 + waveY;
+
+            // 描画
+            const d = `M ${startX} ${startY} Q ${cpX} ${cpY}, ${endX} ${endY}`;
+            path.setAttribute('d', d);
+        } else if (path) {
+            path.classList.add('line-hidden');
+        }
+    }
+    requestAnimationFrame(updateLines);
+}
+
+// ページ読み込み完了後に開始
+window.addEventListener('load', () => {
+    updateLines();
+});
