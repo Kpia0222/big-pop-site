@@ -115,55 +115,6 @@ function backToEntrance() {
     }, 400);
 }
 
-/**
- * 元のエントランスに戻る処理
- */
-function backToEntrance() {
-    const overlay = document.getElementById('color-overlay');
-    overlay.classList.add('active');
-
-    setTimeout(() => {
-        // コンテンツを隠す
-        const contentArea = document.getElementById('content-area');
-        contentArea.classList.add('hidden');
-        contentArea.classList.remove('visible');
-
-        // 全ての要素を復活させる
-        document.getElementById('main-logo').style.display = 'block';
-        document.querySelectorAll('.bubble').forEach(b => {
-            b.classList.remove('popped');
-            b.style.display = 'flex';
-        });
-        document.getElementById('bubble-lines').style.display = 'block';
-
-        overlay.classList.remove('active');
-    }, 800);
-}
-
-/**
- * エントランスに戻る処理
- */
-function backToEntrance() {
-    const overlay = document.getElementById('color-overlay');
-    overlay.classList.add('active');
-
-    setTimeout(() => {
-        // コンテンツを隠す
-        const contentArea = document.getElementById('content-area');
-        contentArea.classList.add('hidden');
-        contentArea.classList.remove('visible');
-
-        // エントランス要素を復活させる
-        document.getElementById('main-logo').style.display = 'block';
-        document.querySelectorAll('.bubble').forEach(b => {
-            b.classList.remove('popped');
-            b.style.display = 'flex';
-        });
-        document.getElementById('bubble-lines').style.display = 'block';
-
-        overlay.classList.remove('active');
-    }, 800);
-}
 
 /**
  * 4. ぐにゃぐにゃ線の描画ループ

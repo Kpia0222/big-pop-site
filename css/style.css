@@ -200,28 +200,24 @@ body.is-ready .bubble {
 .bubble.expanding {
     animation: bubble-expand 1.2s forwards cubic-bezier(0.4, 0, 0.2, 1) !important;
     z-index: 1000 !important;
-    pointer-events: none;
 }
 
-/* 縮小（戻り） ★ここが動いていない可能性大 */
+/* 縮小（戻り）: アニメーション名を明示的に切り替える */
 .bubble.shrinking {
     animation: bubble-shrink 1.2s forwards cubic-bezier(0.4, 0, 0.2, 1) !important;
     z-index: 1000 !important;
-    pointer-events: none;
-    display: flex !important; /* 消えてしまわないように固定 */
-    opacity: 1 !important;
 }
 
-/* 巨大化：1から20へ */
+/* 行き：1から25へ */
 @keyframes bubble-expand {
-    0% { transform: scale(1); filter: blur(0px); }
-    100% { transform: scale(20); filter: blur(10px); }
+    from { transform: scale(1); filter: blur(0px); }
+    to { transform: scale(25); filter: blur(10px); }
 }
 
-/* 縮小：20から1へ ★ここを確実にコピーしてください */
+/* 戻り：25から1へ */
 @keyframes bubble-shrink {
-    0% { transform: scale(20); filter: blur(10px); }
-    100% { transform: scale(1); filter: blur(0px); }
+    from { transform: scale(25); filter: blur(10px); }
+    to { transform: scale(1); filter: blur(0px); }
 }
 
 /* 巨大化中のバブルに付与するクラス */
