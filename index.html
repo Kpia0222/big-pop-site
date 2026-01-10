@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,14 +8,22 @@
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap" rel="stylesheet">
 </head>
-<body class="is-loading">
 
-    <div id="fixed-background"></div>
+<body>
+    <div id="layer-bg"></div>
 
-    <div id="loading-layer">
-        <div class="noise-layer scanlines"></div>
-        <div id="noise-grain" class="noise-layer grain"></div>
-        <div id="noise-static" class="noise-layer static"></div>
+    <div id="layer-entrance">
+        <div class="logo-wrapper">
+            <img src="images/kpia_logo_liquid_yellow_toka.png" id="main-logo" alt="Kpia Logo">
+        </div>
+    </div>
+
+    <div id="layer-loading">
+        <div class="noise-wrap">
+            <div class="noise-layer scanlines"></div>
+            <div id="noise-grain" class="noise-layer grain"></div>
+            <div id="noise-static" class="noise-layer static"></div>
+        </div>
 
         <div class="loading-ui">
             <div class="loading-text">NOW LOADING</div>
@@ -24,12 +33,38 @@
         </div>
     </div>
 
-    <div id="entrance-layer">
+
+    <div id="layer-entrance">
+
+        <div class="logo-wrapper">
+
+            <img src="images/kpia_logo_liquid_yellow_toka.png" id="main-logo" alt="Kpia Logo">
+        </div>
+    </div>
+
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <filter id="liquid-filter">
+            <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" seed="1">
+                <animate attributeName="baseFrequency" dur="10s" values="0.02;0.05;0.02" repeatCount="indefinite" />
+            </feTurbulence>
+            <feDisplacementMap in="SourceGraphic" scale="10" />
+        </filter>
+    </svg>
+
+    <div id="layer-entrance">
+        <div class="bubble b1" onclick="popBubble(this)"><span>MUSIC</span></div>
+        <div class="bubble b2" onclick="popBubble(this)"><span>MIX</span></div>
+        <div class="bubble b3" onclick="popBubble(this)"><span>SING</span></div>
+        <div class="bubble b4" onclick="popBubble(this)"><span>PLAY</span></div>
+        <div class="bubble b5" onclick="popBubble(this)"><span>LIVE</span></div>
+
         <div class="logo-wrapper">
             <img src="images/kpia_logo_liquid_yellow_toka.png" id="main-logo" alt="Kpia Logo">
         </div>
     </div>
 
     <script src="js/script.js"></script>
+
 </body>
+
 </html>

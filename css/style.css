@@ -1,66 +1,290 @@
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-body, html { width: 100%; height: 100%; overflow: hidden; background: #000; }
+body,
+html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #f90;
+    /* 予備色 */
+}
 
-/* 背景画像：フィルター（brightnessなど）を一切排除し、常に明るく固定 */
-#fixed-background {
+/* 全レイヤー共通設定 */
+#layer-bg,
+#layer-entrance,
+#layer-loading {
     position: fixed;
     inset: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* --- レイヤー1: 背景 --- */
+#layer-bg {
     z-index: 1;
     background-image: url('../images/background_entrance_01.JPG');
     background-size: cover;
     background-position: center;
 }
 
-/* --- A. ロード画面 --- */
-#loading-layer {
-    position: fixed;
-    inset: 0;
-    z-index: 100;
-    /* 背景を暗くするための背景色を完全に削除（transparent） */
-    background: transparent; 
+/* --- レイヤー2: エントランス (ロゴ) --- */
+#layer-entrance {
+    z-index: 2;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: opacity 1s ease;
+    opacity: 0;
+    /* 調整1: opacityに加えてtransform(拡大)もアニメーションさせる */
+    transform: scale(0.8);
+    transition: opacity 2.5s ease, transform 2.5s cubic-bezier(0.2, 0, 0.2, 1);
 }
 
-/* 完了時に消去 */
-.is-ready #loading-layer {
+/* スイッチON：ロゴを表示 ＋ 拡大 */
+body.is-ready #layer-entrance {
+    opacity: 1;
+    transform: scale(1);
+    /* 元のサイズに戻る（迫ってくる演出） */
+}
+
+#main-logo {
+    width: 200px;
+    height: auto;
+
+    /* 調整1: 浮遊(floating)と液体(liquid)のダブルアニメーション */
+    animation:
+        floating 0.7s ease-in-out infinite,
+        liquid-look 0.7s ease-in-out infinite;
+
+    /* SVGフィルターを適用 */
+    filter: url(#liquid-filter);
+}
+
+/* B: 浮遊アニメーション（ゆっくり上下に動きながら少し傾く） */
+@keyframes floating {
+
+    0%,
+    100% {
+        transform: translateY(1px) rotate(-1deg);
+    }
+
+    50% {
+        transform: translateY(-1px) rotate(0deg);
+
+    }
+
+
+}
+
+/* C: 液体のような質感（フィルターの強さを変えてゆらゆらさせる） */
+@keyframes liquid-look {
+
+    0%,
+    100% {
+        filter: url(#liquid-filter) brightness(1.06);
+    }
+
+    50% {
+        filter: url(#liquid-filter) brightness(1.1);
+    }
+
+    /* わずかに光沢を変化 */
+}
+
+/* --- レイヤー3: ロード画面 --- */
+#layer-loading {
+    z-index: 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* 調整0: 背景を少し暗くする (0.4は暗さの度合い。お好みで) */
+    background: rgba(0, 0, 0, 0.4);
+    transition: opacity 1.5s ease;
+}
+
+/* スイッチON：ロード画面を消す (背景も明るくなる) */
+body.is-ready #layer-loading {
     opacity: 0;
     pointer-events: none;
 }
 
-/* ノイズ素材：透明度を調整し、背景を隠しすぎないように */
-.noise-layer { position: absolute; inset: 0; pointer-events: none; opacity: 0; }
+/* ノイズアニメーション用パーツ */
+.noise-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+}
+
 .scanlines {
     opacity: 0.15;
-    background: linear-gradient(rgba(0,0,0,0) 50%, rgba(0,0,0,0.3) 50%);
+    background: linear-gradient(rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.3) 50%);
     background-size: 100% 4px;
 }
-.grain { background-image: url("https://upload.wikimedia.org/wikipedia/commons/7/76/1k_Grain.png"); }
-.static { background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJuIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC44NSIgbnVtT2N0YXZlcz0iNCIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNuKSIgb3BhY2l0eT0iMC4yIi8+PC9zdmc+'); }
 
-.loading-ui { text-align: center; color: white; font-family: 'Space Mono', monospace; }
-.loading-text { font-size: 1.2rem; letter-spacing: 0.8rem; margin-bottom: 25px; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
-.loading-bar-container { width: 250px; height: 1px; background: rgba(255,255,255,0.4); overflow: hidden; }
-.loading-bar { width: 100%; height: 100%; background: #fff; transform: translateX(-100%); animation: loadMove 4s forwards linear; }
-@keyframes loadMove { to { transform: translateX(0); } }
+.grain {
+    background-image: url("https://upload.wikimedia.org/wikipedia/commons/7/76/1k_Grain.png");
+}
 
-/* --- B. エントランス画面（ロゴ） --- */
-#entrance-layer {
-    position: fixed;
-    inset: 0;
-    z-index: 50;
+.static {
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJuIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC44NSIgbnVtT2N0YXZlcz0iNCIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNuKSIgb3BhY2l0eT0iMC4yIi8+PC9zdmc+');
+}
+
+/* UIパーツ */
+.loading-ui {
+    text-align: center;
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+}
+
+.loading-text {
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-size: 1.2rem;
+    /* 文字同士の幅を狭く（0.8rem → 0.3rem） */
+    letter-spacing: 0.3rem;
+    margin-bottom: 20px;
+}
+
+.loading-bar-container {
+    width: 200px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+}
+
+/* ゲージのアニメーション速度を2秒に変更 */
+.loading-bar {
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    transform: translateX(-100%);
+    animation: loadMove 2s forwards linear;
+    /* 2sに短縮 */
+}
+
+@keyframes loadMove {
+    to {
+        transform: translateX(0);
+    }
+}
+
+
+
+
+
+
+
+/* --- シャボン玉（視認性向上・虹色強化版） --- */
+.bubble {
+
     display: flex;
     justify-content: center;
     align-items: center;
+    cursor: pointer;
+    user-select: none;
+    color: white;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+
+    position: absolute;
+    /* 重なり順をロゴ(2)と同じか、その周辺に明示 */
+    z-index: 2;
+
+    /* 1. 背景色の透明度を少し上げて、色味をはっきりさせる */
+    background: radial-gradient(circle at 30% 30%,
+            rgba(255, 255, 255, 0.6) 0%,
+            rgba(255, 200, 255, 0.4) 30%,
+            rgba(200, 255, 255, 0.4) 60%,
+            rgba(255, 255, 200, 0.3) 100%);
+
+    /* 2. 縁取りを少しだけ強調 */
+    border: 1px solid rgba(255, 255, 255, 0.5);
+
+    /* 3. backdrop-filter は強力すぎると消えて見えるので控えめに */
+    backdrop-filter: blur(2px);
+
+    /* 4. 虹色の光沢（box-shadowをより濃く設定） */
+    box-shadow:
+        inset 0 10px 20px rgba(255, 255, 255, 0.8),
+        /* 強い反射光 */
+        inset 10px -10px 25px rgba(173, 216, 230, 0.5),
+        /* 水色 */
+        inset -10px -10px 25px rgba(255, 182, 193, 0.5),
+        /* ピンク */
+        0 10px 20px rgba(0, 0, 0, 0.1);
+    /* 外側の影 */
+
+    /* 初期状態を opacity 1 にしてテストし、動いたら transition に戻しましょう */
     opacity: 0;
     transition: opacity 2s ease;
 }
 
-.is-ready #entrance-layer {
+/* body.is-ready で出現 */
+body.is-ready .bubble {
     opacity: 1;
 }
 
-#main-logo { width: 350px; height: auto; }
+/* 変形アニメーション（morph）を適用 */
+.bubble {
+    animation:
+        float-bubble 12s infinite ease-in-out,
+        morph-bubble 8s infinite ease-in-out;
+}
+
+/* 形状変形：border-radius の変化を緩やかにして安定させる */
+@keyframes morph-bubble {
+
+    0%,
+    100% {
+        border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%;
+    }
+
+    33% {
+        border-radius: 55% 45% 52% 48% / 48% 52% 50% 50%;
+    }
+
+    66% {
+        border-radius: 48% 52% 55% 45% / 52% 48% 53% 47%;
+    }
+}
+
+/* 特大バブルの配置（重なりを考慮したダイナミックな配置） */
+.b1 { width: 280px; height: 280px; top: -2%;  left: -2%; }  /* 左上：画面からはみ出すくらい */
+.b2 { width: 200px; height: 200px; top: 65%;  left: 5%; }   /* 左下 */
+.b3 { width: 240px; height: 240px; top: 5%;   right: -3%; } /* 右上：画面からはみ出すくらい */
+.b4 { width: 160px; height: 160px; top: 55%;  right: 5%; }  /* 右下 */
+.b5 { width: 220px; height: 220px; bottom: 2%; left: 38%; }  /* 中央下 */
+
+/* 弾けるアニメーション */
+.bubble.popped {
+    animation: bubble-pop 0.3s forwards ease-out !important;
+    pointer-events: none;
+    /* 連続クリック防止 */
+}
+
+/* 弾けるアニメーションの拡大率をさらにダイナミックに */
+@keyframes bubble-pop {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(2.5); /* 一気に大きく広がって消える */
+        opacity: 0;
+        filter: brightness(3) blur(10px);
+    }
+}
+
+/* 文字の強調 */
+.bubble span {
+    font-size: 1.5rem; /* さらに大きく */
+    letter-spacing: 0.2rem; /* 文字間隔を広げて高級感を */
+    font-weight: 900; /* 極太に */
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.4); /* 文字からも光が漏れているように */
+}
