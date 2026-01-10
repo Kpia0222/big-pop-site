@@ -331,74 +331,26 @@ body.is-ready .bubble {
 }
 
 
-/* --- レスポンシブ対応：画面幅が 768px 以下の時（スマホ・タブレット） --- */
 @media screen and (max-width: 768px) {
-
-    /* 1. ロゴのサイズをスマホ用に調整 */
     #main-logo {
-        width: 150px;
+        width: 130px; /* ロゴも少しだけ小ぶりに */
     }
 
-    /* 2. 文字サイズを少し小さくして収まりを良くする */
     .bubble span {
-        font-size: 0.9rem;
-        letter-spacing: 0.1rem;
+        font-size: 0.85rem;
     }
 
-    /* 3. シャボン玉のサイズと位置をスマホの縦長画面用にリセット */
-    /* 全体的に重ならないよう、上下に散らします */
-    .b1 {
-        width: 140px;
-        height: 140px;
-        top: 5%;
-        left: 5%;
-    }
+    /* 5つの泡を画面の上から中央にかけて「ロゴを囲むように」配置 */
+    /* topの数値を小さくして、全体を上に持ち上げています */
+    
+    .b1 { width: 130px; height: 130px; top: 5%;  left: 5%; }    /* MUSIC (左上) */
+    .b2 { width: 100px; height: 100px; top: 15%; left: 65%; }   /* MIX (右上) */
+    .b3 { width: 120px; height: 120px; top: 40%; left: -5%; }   /* SING (左中央) */
+    .b4 { width: 100px; height: 100px; top: 50%; left: 70%; }   /* PLAY (右中央) */
+    .b5 { width: 110px; height: 110px; top: 65%; left: 35%; }   /* LIVE (ロゴのすぐ下) */
 
-    /* MUSIC */
-    .b2 {
-        width: 110px;
-        height: 110px;
-        top: 22%;
-        left: 60%;
-    }
-
-    /* MIX */
-    .b3 {
-        width: 130px;
-        height: 130px;
-        top: 60%;
-        right: 55%;
-    }
-
-    /* SING */
-    .b4 {
-        width: 100px;
-        height: 100px;
-        top: 75%;
-        right: 10%;
-    }
-
-    /* PLAY */
-    .b5 {
-        width: 120px;
-        height: 120px;
-        bottom: 5%;
-        left: 35%;
-    }
-
-    /* LIVE */
-
-    /* 4. 弾ける時の拡大率もスマホ用に調整 */
-    @keyframes bubble-pop {
-        0% {
-            transform: scale(1);
-            opacity: 1;
-        }
-
-        100% {
-            transform: scale(1.8);
-            opacity: 0;
-            filter: brightness(2) blur(5px);
-        }
+    /* 泡が画面の横にはみ出しすぎないよう調整 */
+    #layer-entrance {
+        overflow: hidden;
     }
 }
