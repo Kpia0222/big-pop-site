@@ -11,12 +11,16 @@ body, html {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background-color: #f90;
+    background-color: #000; /* 背景が読み込まれるまでの待機色 */
 }
 
 #layer-bg,
 #layer-entrance,
 #layer-loading {
+    background-color: rgba(0, 0, 0, 0.04);
+    background-blend-mode: darken;
+
+    transition: filter 1.5s ease; /* ロード時の演出用 */
     position: fixed;
     inset: 0;
     width: 100vw;
@@ -24,7 +28,7 @@ body, html {
 }
 
 /* ==========================================
-   2. 各レイヤーの重なり設定
+   2. 各レイヤーの重なり
    ========================================== */
 #layer-bg       { z-index: 1; }
 #bubble-lines   { z-index: 2; }
@@ -54,10 +58,9 @@ body, html {
 
 #bubble-lines path {
     fill: none !important;
-    stroke-width: 4;
+    stroke-width: 3;
     stroke-linecap: round;
-    opacity: 0.3;
-    filter: blur(0.5px) drop-shadow(0 0 3px rgba(255, 255, 255, 0.3));
+    opacity: 0.5; /* 0.3から引き上げ */
     transition: opacity 0.5s ease;
 }
 
@@ -71,8 +74,8 @@ body, html {
     justify-content: center;
     align-items: center;
     opacity: 0;
-    transform: scale(0.8);
-    transition: opacity 2.5s ease, transform 2.5s cubic-bezier(0.2, 0, 0.2, 1);
+    transform: scale(0.9);
+    transition: opacity 2s ease, transform 2s cubic-bezier(0.2, 0, 0.2, 1);
 }
 
 body.is-ready #layer-entrance {
@@ -86,6 +89,7 @@ body.is-ready #layer-entrance {
     z-index: 6;
     animation: liquid-look 0.8s ease-in-out infinite;
     filter: url(#liquid-filter);
+    transition: opacity 0.8s ease;
 }
 
 @keyframes liquid-look {
@@ -104,7 +108,7 @@ body.is-ready #layer-entrance {
     pointer-events: auto !important;
     user-select: none;
     opacity: 0;
-    transition: opacity 1.5s ease; /* 少し速めて快適に */
+    transition: opacity 1.5s ease, visibility 1.5s;
 
     color: white;
     font-family: 'Space Mono', monospace;
@@ -118,14 +122,37 @@ body.is-ready #layer-entrance {
     overflow: hidden;
     mask-image: radial-gradient(circle, white 100%, transparent 100%);
     -webkit-mask-image: radial-gradient(circle, white 100%, transparent 100%);
-    backface-visibility: hidden;
-    perspective: 1000px;
     transform-origin: center center;
 
     animation: float-bubble 15s infinite ease-in-out, morph-bubble 10s infinite ease-in-out;
+
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50% !important;
+    
+    /* --- コロナ風エフェクトの追加 --- */
+    
+    /* 1. 輪郭を波打たせるフィルタを適用 */
+    filter: url(#corona-filter);
+    
+    /* 2. 重層的な光の漏れ（内側と外側にふわふわした光） */
+    box-shadow: 
+        0 0 30px 10px rgba(255, 255, 255, 0.2),  /* 外側の淡い光 */
+        0 0 60px 20px var(--bg-color),            /* カテゴリー色の光 */
+        inset 0 0 40px rgba(255, 255, 255, 0.4); /* 内側の輝き */
+
+    /* 3. 常に少しだけ震えるアニメーション */
+    animation: 
+        float-bubble 15s infinite ease-in-out, 
+        corona-pulse 4s infinite ease-in-out alternate;
+        
+    border: none; /* 固い線は消したほうがコロナっぽくなります */
+    transition: transform 1s, opacity 1s, filter 1s;
 }
 
-/* ★超重要：遷移中・またはメニュー表示中はすべてのバブルのクリックを拒否する */
+/* 遷移中のクリック拒否 */
 body.is-switching .bubble,
 body.is-menu-open .bubble {
     pointer-events: none !important;
@@ -142,49 +169,104 @@ body.is-ready .bubble { opacity: 1; }
 
 @keyframes float-bubble {
     0%, 100% { transform: translate(0, 0) rotate(0deg); }
-    50% { transform: translate(-10px, -30px) rotate(-2deg); }
+    50% { transform: translate(-10px, -20px) rotate(-1deg); }
 }
 
-/* --- 個別配置と初期サイズ --- */
-.bubble.b1 { --init-size: 280px; --bg-color: #ffcc00; width: var(--init-size); height: var(--init-size); top: -2%; left: -2%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), rgba(220, 130, 130, 0.3)); box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.4); }
-.bubble.b2 { --init-size: 200px; --bg-color: #ff3366; width: var(--init-size); height: var(--init-size); top: 65%; left: 5%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), rgba(220, 205, 140, 0.3)); box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.4); }
-.bubble.b3 { --init-size: 240px; --bg-color: #00ffcc; width: var(--init-size); height: var(--init-size); top: 5%; right: -3%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), rgba(150, 180, 225, 0.3)); box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.4); }
-.bubble.b4 { --init-size: 160px; --bg-color: #3366ff; width: var(--init-size); height: var(--init-size); top: 55%; right: 5%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), rgba(180, 150, 225, 0.3)); box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.4); }
-.bubble.b5 { --init-size: 220px; --bg-color: #9933ff; width: var(--init-size); height: var(--init-size); bottom: 5%; left: 45%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), rgba(170, 205, 150, 0.3)); box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.4); }
+/* --- PC用：個別配置と初期サイズ --- */
+/* --- 個別配置と初期サイズ (色味を少し濃く調整) --- */
+.bubble.b1 { --init-size: 280px; --bg-color: #ffcc00; width: var(--init-size); height: var(--init-size); top: 5%; left: 15%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(220, 130, 130, 0.5)); box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.4); }
+.bubble.b2 { --init-size: 200px; --bg-color: #ff3366; width: var(--init-size); height: var(--init-size); top: 65%; left: 10%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(220, 205, 140, 0.5)); box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.4); }
+.bubble.b3 { --init-size: 240px; --bg-color: #00ffcc; width: var(--init-size); height: var(--init-size); top: 8%; right: 15%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(150, 180, 225, 0.5)); box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.4); }
+.bubble.b4 { --init-size: 160px; --bg-color: #3366ff; width: var(--init-size); height: var(--init-size); top: 60%; right: 10%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(180, 150, 225, 0.5)); box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.4); }
+.bubble.b5 { --init-size: 220px; --bg-color: #9933ff; width: var(--init-size); height: var(--init-size); bottom: 8%; left: 45%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(170, 205, 150, 0.5)); box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.4); }
 
 /* ==========================================
-   5. 遷移・拡大アニメーション
+   5. 遷移・拡大アニメーション (中央移動版)
    ========================================== */
+
+body.is-menu-open #layer-bg {
+    filter: brightness(0.4) blur(5px);
+}
+
+/* 拡大・縮小中のバブル内の文字を隠す */
+.bubble.expanding span,
+.bubble.shrinking span {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: opacity 0.3s ease; /* スッと消えるように */
+}
+
+/* 通常時のバブル内の文字（念のため追記） */
+.bubble span {
+    pointer-events: none; /* 文字がクリックの邪魔をしないように */
+    transition: opacity 0.5s ease;
+}
+   
 .bubble.expanding {
-    --target-scale: calc(1200px / var(--init-size));
-    animation: bubble-expand 1.2s forwards cubic-bezier(0.4, 0, 0.2, 1) !important;
+    /* JSから渡される移動距離（--move-x, --move-y）を使って中央へ */
+    --target-scale: calc(850px / var(--init-size));
+    animation: bubble-to-center 1.2s forwards cubic-bezier(0.4, 0, 0.2, 1) !important;
     z-index: 1000 !important;
 }
-.bubble.expanding span { opacity: 0; }
 
 .bubble.shrinking {
-    --target-scale: calc(1200px / var(--init-size));
-    animation: bubble-shrink 1.2s forwards cubic-bezier(0.4, 0, 0.2, 1) !important;
+    --target-scale: calc(850px / var(--init-size));
+    /* 逆再生で元の位置に戻る */
+    animation: bubble-from-center 1.2s forwards cubic-bezier(0.4, 0, 0.2, 1) !important;
     z-index: 1000 !important;
 }
 
-@keyframes bubble-expand {
-    0% { transform: scale(1); background-color: initial; }
+@keyframes bubble-to-center {
+    0% { 
+        transform: translate(0, 0) scale(1); 
+    }
     100% { 
-        transform: scale(var(--target-scale)); 
-        background-color: var(--bg-color) !important; 
-        opacity: 0.95; 
-        filter: blur(4px) saturate(1.5); 
+        /* JSで計算した中央までの差分を適用 */
+        transform: translate(var(--move-x), var(--move-y)) scale(var(--target-scale)); 
+        background-color: var(--bg-color) !important;
+        opacity: 0.95;
+        filter: url(#corona-filter) blur(2px);
     }
 }
 
-@keyframes bubble-shrink {
-    0% { transform: scale(var(--target-scale)); opacity: 0.8; filter: blur(4px) saturate(1.5); }
-    100% { transform: scale(1); opacity: 1; filter: blur(0px) saturate(1); }
+@keyframes bubble-from-center {
+    0% { 
+        transform: translate(var(--move-x), var(--move-y)) scale(var(--target-scale)); 
+        background-color: var(--bg-color);
+        opacity: 0.95;
+    }
+    100% { 
+        transform: translate(0, 0) scale(1); 
+        background-color: initial;
+        opacity: 1;
+    }
+}
+
+/* 脈動するような光のアニメーション */
+@keyframes corona-pulse {
+    0% {
+        box-shadow: 
+            0 0 30px 5px rgba(255, 255, 255, 0.2), 
+            0 0 50px 15px var(--bg-color),
+            inset 0 0 30px rgba(255, 255, 255, 0.4);
+    }
+    100% {
+        box-shadow: 
+            0 0 50px 15px rgba(255, 255, 255, 0.3), 
+            0 0 80px 30px var(--bg-color),
+            inset 0 0 50px rgba(255, 255, 255, 0.5);
+    }
+}
+
+/* スマホ用：画面からはみ出しすぎないよう目標サイズを小さく統一 */
+@media screen and (max-width: 768px) {
+    .bubble.expanding, .bubble.shrinking {
+        --final-diameter: 450px; 
+    }
 }
 
 /* ==========================================
-   6. コンテンツ表示エリア
+   6. コンテンツ表示エリア (最前面に固定)
    ========================================== */
 #content-area {
     position: fixed;
@@ -194,12 +276,33 @@ body.is-ready .bubble { opacity: 1; }
     text-align: center;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.5s;
+    transition: opacity 0.6s ease-out;
+    
+    /* 拡大バブル(z-index: 1000)より必ず上にくるように設定 */
+    z-index: 3000 !important;
 }
 
 #content-area.visible {
     opacity: 1;
     pointer-events: auto;
+}
+
+/* 文字の視認性確保 */
+#inner-content h1 {
+    color: white;
+    font-size: 3.5rem;
+    letter-spacing: 0.5rem;
+    margin-bottom: 20px;
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.5); /* 文字を浮かせる */
+}
+
+#inner-content p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.2rem;
+    line-height: 1.8;
+    max-width: 600px;
+    margin: 0 auto;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .hidden { display: none !important; }
@@ -209,86 +312,57 @@ body.is-ready .bubble { opacity: 1; }
     background: transparent;
     border: 1px solid white;
     color: white;
-    padding: 10px 20px;
+    padding: 12px 24px;
     cursor: pointer;
     font-family: 'Space Mono', monospace;
-    transition: background 0.3s;
+    transition: all 0.3s;
 }
-.back-button:hover { background: rgba(255,255,255,0.2); }
+.back-button:hover { background: rgba(255,255,255,0.2); letter-spacing: 2px; }
 
 /* ==========================================
-   7. ロード画面レイヤー
+   7. スマホ向けレスポンシブ調整
+   ========================================== */
+@media screen and (max-width: 768px) {
+    #main-logo { width: 120px; }
+
+    .bubble {
+        --init-size: 140px !important; 
+        width: var(--init-size) !important;
+        height: var(--init-size) !important;
+    }
+
+    /* スマホ配置：重なり回避の再定義 */
+    .bubble.b1 { top: 12%; left: 10%; }
+    .bubble.b2 { top: 68%; left: 8%; }
+    .bubble.b3 { top: 14%; right: 10%; }
+    .bubble.b4 { top: 70%; right: 8%; }
+    .bubble.b5 { bottom: 8%; left: 50%; transform: translateX(-50%); }
+
+    .bubble.expanding, .bubble.shrinking { 
+        --target-scale: calc(100vw * 1.5 / var(--init-size)); 
+    }
+
+    #content-area h1 { font-size: 2.2rem !important; letter-spacing: 0.3rem !important; }
+    #content-area p { font-size: 1rem !important; padding: 0 10px; }
+}
+
+/* ==========================================
+   8. ロード画面レイヤー
    ========================================== */
 #layer-loading {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background: rgba(0, 0, 0, 0.8);
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    background: rgba(0, 0, 0, 0.9);
     transition: opacity 1.5s ease;
 }
+body.is-ready #layer-loading { opacity: 0; pointer-events: none; }
 
-body.is-ready #layer-loading {
-    opacity: 0;
-    pointer-events: none;
-}
-
-.loading-ui { display: flex; flex-direction: column; align-items: center; }
 .loading-text { color: #fff; font-family: 'Space Mono', monospace; font-size: 1.2rem; letter-spacing: 0.5rem; margin-bottom: 20px; }
 .loading-bar-container { width: 200px; height: 1px; background: rgba(255, 255, 255, 0.3); overflow: hidden; }
 .loading-bar { width: 100%; height: 100%; background: #fff; transform: translateX(-100%); animation: loadMove 2s forwards linear; }
 
 @keyframes loadMove { to { transform: translateX(0); } }
 
-/* ノイズ背景 */
+/* ノイズ */
 .noise-layer { position: absolute; inset: 0; pointer-events: none; opacity: 0; z-index: -1; }
 .grain { background-image: url("https://upload.wikimedia.org/wikipedia/commons/7/76/1k_Grain.png"); }
 .static { background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJuIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC44NSIgbnVtT2N0YXZlcz0iNCIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNuKSIgb3BhY2l0eT0iMC4yIi8+PC9zdmc+'); }
-
-/* ==========================================
-   8. スマホ向けレスポンシブ調整 (修正版)
-   ========================================== */
-@media screen and (max-width: 768px) {
-    /* ロゴを少し小さくして中央のスペースを確保 */
-    #main-logo { 
-        width: 120px; 
-    }
-
-    /* バブル全体のサイズ感と配置をスマホ用に最適化 */
-    .bubble {
-        --init-size: 140px !important; /* スマホでは一律少し小さく */
-        width: var(--init-size);
-        height: var(--init-size);
-        font-size: 0.75rem;
-    }
-
-    /* 重なりを防ぐための配置再計算（画面端に寄りすぎないよう調整） */
-    .bubble.b1 { top: 10%; left: 10%; }  /* 左上 */
-    .bubble.b2 { top: 65%; left: 8%; }   /* 左下 */
-    .bubble.b3 { top: 12%; right: 10%; } /* 右上 */
-    .bubble.b4 { top: 68%; right: 8%; }  /* 右下 */
-    .bubble.b5 { bottom: 8%; left: 50%; transform: translateX(-50%); } /* 真下 */
-
-    /* 拡大アニメーションの目標値をスマホ画面幅に合わせる */
-    .bubble.expanding, .bubble.shrinking { 
-        --target-scale: calc(100vw * 1.5 / var(--init-size)); 
-    }
-
-    /* コンテンツエリアの文字サイズ調整 */
-    #content-area h1 {
-        font-size: 2.2rem !important;
-        letter-spacing: 0.3rem !important;
-    }
-    #content-area p {
-        font-size: 1rem !important;
-        padding: 0 20px;
-        line-height: 1.5;
-    }
-
-    /* 戻るボタンを押しやすく */
-    .back-button {
-        padding: 15px 30px;
-        font-size: 1rem;
-        margin-top: 30px;
-    }
-}

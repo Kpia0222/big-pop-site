@@ -9,6 +9,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap" rel="stylesheet">
 </head>
 
+<svg style="position: absolute; width: 0; height: 0;" mxmlns="http://www.w3.org/2000/svg">
+    <filter id="corona-filter">
+        <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" seed="1">
+            <animate attributeName="baseFrequency" dur="10s" values="0.015;0.025;0.015" repeatCount="indefinite" />
+        </feTurbulence>
+        <feDisplacementMap in="SourceGraphic" scale="25" />
+    </filter>
+</svg>
+
 <body>
 
     <div id="layer-bg"></div>
