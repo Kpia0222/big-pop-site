@@ -5,63 +5,64 @@ body, html {
     overflow: hidden; background-color: #000;
 }
 
-/* 待機状態の背景（暗い） */
 #world-background {
     position: fixed; inset: 0;
     background-image: url('../images/background_entrance_01.JPG');
     background-size: cover; background-position: center;
     filter: brightness(0.4) contrast(1.5);
-    transition: filter 1.5s ease; /* クリアになる時のアニメーション */
+    transition: filter 2s ease;
     z-index: 1;
 }
 
-/* 開始後の背景（明るい） */
+/* 開始後の明るさ */
 body.is-started #world-background {
     filter: brightness(1) contrast(1);
 }
 
 .noise-layer {
     position: absolute; inset: 0; pointer-events: none;
-    opacity: 0; z-index: 5;
+    opacity: 0; z-index: 10;
 }
 
-/* 待機中のみ走査線を表示 */
 body.is-waiting .scanlines {
     opacity: 0.3;
     background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%);
     background-size: 100% 4px;
 }
 
-/* 各ノイズ素材（前回の設定を維持） */
 .grain { background-image: url("https://upload.wikimedia.org/wikipedia/commons/7/76/1k_Grain.png"); }
 .static { background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJuIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC44NSIgbnVtT2N0YXZlcz0iNCIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNuKSIgb3BhY2l0eT0iMC4yIi8+PC9zdmc+'); }
 .chromatic { background: radial-gradient(circle, transparent 30%, rgba(0, 255, 255, 0.1) 60%, rgba(255, 0, 255, 0.1) 100%); }
 .vignette { background: radial-gradient(circle, transparent 10%, rgba(0,0,0,0.9) 130%); }
 
-/* Start Screen */
+/* Start Screen を最前面に配置 */
 #start-screen {
-    position: fixed; inset: 0; z-index: 100;
+    position: fixed; inset: 0; z-index: 9999;
     display: flex; justify-content: center; align-items: center;
     cursor: pointer;
+    background: rgba(0,0,0,0.01); /* クリック判定を確実にするため透明度を極小にする */
 }
 
 .tap-text {
     color: white; font-family: 'Archivo Black', sans-serif;
     font-size: 2rem; letter-spacing: 0.5rem;
     animation: blink 1.5s infinite;
+    pointer-events: none; /* テキスト自体ではなく親要素のクリックを優先 */
 }
 
-@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
 
-/* ロゴ設定 */
+/* ロゴ設定：初期状態は透明 */
 #entrance-container {
-    position: relative; z-index: 50;
+    position: relative; z-index: 100;
     width: 100vw; height: 100vh;
     display: flex; justify-content: center; align-items: center;
-    opacity: 0; transition: opacity 2s ease;
+    opacity: 0; visibility: hidden;
+    transition: opacity 2s ease, visibility 2s ease;
 }
 
-#entrance-container.show { opacity: 1; }
-#main-logo { width: 380px; height: auto; }
+body.is-started #entrance-container {
+    opacity: 1; visibility: visible;
+}
 
-.hidden { display: none; }
+#main-logo { width: 380px; height: auto; }
