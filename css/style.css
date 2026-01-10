@@ -294,36 +294,36 @@ body.is-ready .bubble {
     left: 38%;
 }
 
-/* --- 各シャボン玉の色指定（ほんの少しだけ濃いめ） --- */
+/* --- 各シャボン玉の色指定（ほんのほんの少しだけ薄く、透明感重視） --- */
 
-/* MUSIC: ローズ（赤） */
+/* MUSIC: ローズ */
 .b1 { 
-    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.45), rgba(220, 120, 120, 0.35) 60%, rgba(180, 80, 80, 0.15));
-    box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.5), inset 10px -10px 25px rgba(200, 100, 100, 0.3), 0 10px 20px rgba(0, 0, 0, 0.08);
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), rgba(220, 130, 130, 0.28) 55%, rgba(180, 90, 90, 0.12));
+    box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.45), inset 10px -10px 25px rgba(200, 110, 110, 0.25), 0 10px 20px rgba(0, 0, 0, 0.06);
 }
 
-/* MIX: アンバー（黄） */
+/* MIX: アンバー */
 .b2 { 
-    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.45), rgba(220, 200, 130, 0.35) 60%, rgba(180, 160, 100, 0.15));
-    box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.5), inset 10px -10px 25px rgba(200, 180, 110, 0.3), 0 10px 20px rgba(0, 0, 0, 0.08);
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), rgba(220, 205, 140, 0.28) 55%, rgba(180, 165, 110, 0.12));
+    box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.45), inset 10px -10px 25px rgba(200, 185, 120, 0.25), 0 10px 20px rgba(0, 0, 0, 0.06);
 }
 
-/* SING: セルリアン（青） */
+/* SING: セルリアン */
 .b3 { 
-    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.45), rgba(140, 170, 220, 0.35) 60%, rgba(100, 130, 180, 0.15));
-    box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.5), inset 10px -10px 25px rgba(110, 140, 200, 0.3), 0 10px 20px rgba(0, 0, 0, 0.08);
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), rgba(150, 180, 225, 0.28) 55%, rgba(110, 140, 185, 0.12));
+    box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.45), inset 10px -10px 25px rgba(120, 150, 205, 0.25), 0 10px 20px rgba(0, 0, 0, 0.06);
 }
 
-/* PLAY: アメジスト（紫） */
+/* PLAY: アメジスト */
 .b4 { 
-    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.45), rgba(170, 140, 220, 0.35) 60%, rgba(130, 100, 180, 0.15));
-    box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.5), inset 10px -10px 25px rgba(140, 110, 200, 0.3), 0 10px 20px rgba(0, 0, 0, 0.08);
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), rgba(180, 150, 225, 0.28) 55%, rgba(140, 110, 185, 0.12));
+    box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.45), inset 10px -10px 25px rgba(150, 120, 205, 0.25), 0 10px 20px rgba(0, 0, 0, 0.06);
 }
 
-/* LIVE: ピスタチオ（緑） */
+/* LIVE: ピスタチオ */
 .b5 { 
-    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.45), rgba(160, 200, 140, 0.35) 60%, rgba(110, 160, 100, 0.15));
-    box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.5), inset 10px -10px 25px rgba(130, 180, 110, 0.3), 0 10px 20px rgba(0, 0, 0, 0.08);
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), rgba(170, 205, 150, 0.28) 55%, rgba(120, 165, 110, 0.12));
+    box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.45), inset 10px -10px 25px rgba(140, 185, 120, 0.25), 0 10px 20px rgba(0, 0, 0, 0.06);
 }
 
 
