@@ -1,0 +1,31 @@
+/* 変数の定義：色を変えるだけでサイト全体の雰囲気を変えられます */
+:root {
+    --main-color: #ff3e81; /* ポップなピンク */
+    --accent-color: #00e5ff; /* 鮮やかな水色 */
+    --bg-color: #ffffff;
+    --text-color: #333333;
+}
+
+body {
+    margin: 0;
+    font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif;
+    color: var(--text-color);
+}
+
+/* ヒーローセクション：画面いっぱいにキャッチコピーを出す */
+#hero {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(45deg, var(--main-color), var(--accent-color));
+    color: white;
+    text-align: center;
+}
+
+#hero h1 {
+    font-size: 4rem; /* MacのRetinaディスプレイで映える大きな文字 */
+    margin-bottom: 1rem;
+    letter-spacing: 0.1rem;
+}
