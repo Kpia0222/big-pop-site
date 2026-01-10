@@ -1,68 +1,66 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-body, html {
-    width: 100%; height: 100%;
-    overflow: hidden; background-color: #000;
-}
+body, html { width: 100%; height: 100%; overflow: hidden; background: #000; }
 
-#world-background {
-    position: fixed; inset: 0;
-    background-image: url('../images/background_entrance_01.JPG');
-    background-size: cover; background-position: center;
-    filter: brightness(0.4) contrast(1.5);
-    transition: filter 2s ease;
+/* 背景画像：フィルター（brightnessなど）を一切排除し、常に明るく固定 */
+#fixed-background {
+    position: fixed;
+    inset: 0;
     z-index: 1;
+    background-image: url('../images/background_entrance_01.JPG');
+    background-size: cover;
+    background-position: center;
 }
 
-/* 開始後の明るさ */
-body.is-started #world-background {
-    filter: brightness(1) contrast(1);
+/* --- A. ロード画面 --- */
+#loading-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    /* 背景を暗くするための背景色を完全に削除（transparent） */
+    background: transparent; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 1s ease;
 }
 
-.noise-layer {
-    position: absolute; inset: 0; pointer-events: none;
-    opacity: 0; z-index: 10;
+/* 完了時に消去 */
+.is-ready #loading-layer {
+    opacity: 0;
+    pointer-events: none;
 }
 
-body.is-waiting .scanlines {
-    opacity: 0.3;
-    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%);
+/* ノイズ素材：透明度を調整し、背景を隠しすぎないように */
+.noise-layer { position: absolute; inset: 0; pointer-events: none; opacity: 0; }
+.scanlines {
+    opacity: 0.15;
+    background: linear-gradient(rgba(0,0,0,0) 50%, rgba(0,0,0,0.3) 50%);
     background-size: 100% 4px;
 }
-
 .grain { background-image: url("https://upload.wikimedia.org/wikipedia/commons/7/76/1k_Grain.png"); }
 .static { background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJuIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC44NSIgbnVtT2N0YXZlcz0iNCIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNuKSIgb3BhY2l0eT0iMC4yIi8+PC9zdmc+'); }
-.chromatic { background: radial-gradient(circle, transparent 30%, rgba(0, 255, 255, 0.1) 60%, rgba(255, 0, 255, 0.1) 100%); }
-.vignette { background: radial-gradient(circle, transparent 10%, rgba(0,0,0,0.9) 130%); }
 
-/* Start Screen を最前面に配置 */
-#start-screen {
-    position: fixed; inset: 0; z-index: 9999;
-    display: flex; justify-content: center; align-items: center;
-    cursor: pointer;
-    background: rgba(0,0,0,0.01); /* クリック判定を確実にするため透明度を極小にする */
+.loading-ui { text-align: center; color: white; font-family: 'Space Mono', monospace; }
+.loading-text { font-size: 1.2rem; letter-spacing: 0.8rem; margin-bottom: 25px; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
+.loading-bar-container { width: 250px; height: 1px; background: rgba(255,255,255,0.4); overflow: hidden; }
+.loading-bar { width: 100%; height: 100%; background: #fff; transform: translateX(-100%); animation: loadMove 4s forwards linear; }
+@keyframes loadMove { to { transform: translateX(0); } }
+
+/* --- B. エントランス画面（ロゴ） --- */
+#entrance-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 2s ease;
 }
 
-.tap-text {
-    color: white; font-family: 'Archivo Black', sans-serif;
-    font-size: 2rem; letter-spacing: 0.5rem;
-    animation: blink 1.5s infinite;
-    pointer-events: none; /* テキスト自体ではなく親要素のクリックを優先 */
+.is-ready #entrance-layer {
+    opacity: 1;
 }
 
-@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
-
-/* ロゴ設定：初期状態は透明 */
-#entrance-container {
-    position: relative; z-index: 100;
-    width: 100vw; height: 100vh;
-    display: flex; justify-content: center; align-items: center;
-    opacity: 0; visibility: hidden;
-    transition: opacity 2s ease, visibility 2s ease;
-}
-
-body.is-started #entrance-container {
-    opacity: 1; visibility: visible;
-}
-
-#main-logo { width: 380px; height: auto; }
+#main-logo { width: 350px; height: auto; }

@@ -5,24 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kpia Entrance</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap" rel="stylesheet">
 </head>
-<body class="is-waiting">
+<body class="is-loading">
 
-    <div id="world-background">
+    <div id="fixed-background"></div>
+
+    <div id="loading-layer">
         <div class="noise-layer scanlines"></div>
         <div id="noise-grain" class="noise-layer grain"></div>
         <div id="noise-static" class="noise-layer static"></div>
-        <div id="noise-chromatic" class="noise-layer chromatic"></div>
-        <div id="noise-vignette" class="noise-layer vignette"></div>
+
+        <div class="loading-ui">
+            <div class="loading-text">NOW LOADING</div>
+            <div class="loading-bar-container">
+                <div class="loading-bar"></div>
+            </div>
+        </div>
     </div>
 
-    <div id="start-screen">
-        <div class="tap-text">TAP TO START</div>
-    </div>
-
-    <div id="entrance-container">
-        <img src="images/kpia_logo_liquid_yellow_toka.png" id="main-logo" alt="Kpia Logo">
+    <div id="entrance-layer">
+        <div class="logo-wrapper">
+            <img src="images/kpia_logo_liquid_yellow_toka.png" id="main-logo" alt="Kpia Logo">
+        </div>
     </div>
 
     <script src="js/script.js"></script>
