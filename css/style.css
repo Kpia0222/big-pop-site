@@ -134,6 +134,19 @@ body.is-ready .bubble {
         float-bubble 15s infinite ease-in-out,
         morph-bubble 10s infinite ease-in-out;
     transform-origin: center;
+
+    /* 巨大化しても角を丸く保つための強制設定 */
+    border-radius: 50% !important;
+    overflow: hidden; /* 中身が四角くはみ出すのを防ぐ */
+    
+    /* ブラウザに「これは常に丸いですよ」と再認識させる魔法の1行 */
+    mask-image: radial-gradient(circle, white 100%, transparent 100%);
+    -webkit-mask-image: radial-gradient(circle, white 100%, transparent 100%);
+
+    /* 描画のガタつき（四角化）を防ぐ */
+    backface-visibility: hidden;
+    perspective: 1000px;
+    transform-origin: center center;
 }
 
 @keyframes morph-bubble {
@@ -208,16 +221,27 @@ body.is-ready .bubble {
     z-index: 1000 !important;
 }
 
-/* 行き：1から25へ */
+/* アニメーション中の補正 */
 @keyframes bubble-expand {
-    from { transform: scale(1); filter: blur(0px); }
-    to { transform: scale(25); filter: blur(10px); }
+    0% { 
+        transform: scale(1); 
+        border-radius: 50%;
+    }
+    100% { 
+        transform: scale(25); 
+        border-radius: 50%; /* 巨大化しても50%を維持 */
+    }
 }
 
-/* 戻り：25から1へ */
 @keyframes bubble-shrink {
-    from { transform: scale(25); filter: blur(10px); }
-    to { transform: scale(1); filter: blur(0px); }
+    0% { 
+        transform: scale(25); 
+        border-radius: 50%;
+    }
+    100% { 
+        transform: scale(1); 
+        border-radius: 50%;
+    }
 }
 
 /* 巨大化中のバブルに付与するクラス */
