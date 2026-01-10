@@ -1,58 +1,67 @@
-/* Google Fontsから太くてポップなフォントを読み込む */
-@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Noto+Sans+JP:wght@900&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-:root {
-    --bg-color: #ffde00;    /* エネルギッシュな黄色 */
-    --main-text: #000000;   /* パキッとした黒 */
-    --accent-color: #ff3e81; /* 差し色のピンク */
+body, html {
+    width: 100%; height: 100%;
+    overflow: hidden; background-color: #000;
 }
 
-body {
-    background-color: var(--bg-color);
-    color: var(--main-text);
-    font-family: 'Archivo Black', 'Noto Sans JP', sans-serif;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+/* 待機状態の背景（暗い） */
+#world-background {
+    position: fixed; inset: 0;
+    background-image: url('../images/background_entrance_01.JPG');
+    background-size: cover; background-position: center;
+    filter: brightness(0.4) contrast(1.5);
+    transition: filter 1.5s ease; /* クリアになる時のアニメーション */
+    z-index: 1;
 }
 
-h1 {
-    font-size: 8vw; /* 画面幅に合わせて「でかく」なる文字 */
-    text-transform: uppercase;
-    margin: 40px 0;
-    line-height: 0.9;
-    text-align: center;
-    /* 文字の縁取り（ポップさを強調） */
-    -webkit-text-stroke: 2px var(--main-text);
+/* 開始後の背景（明るい） */
+body.is-started #world-background {
+    filter: brightness(1) contrast(1);
 }
 
-.container {
-    width: 90%;
-    max-width: 1200px;
+.noise-layer {
+    position: absolute; inset: 0; pointer-events: none;
+    opacity: 0; z-index: 5;
 }
 
-.video-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
+/* 待機中のみ走査線を表示 */
+body.is-waiting .scanlines {
+    opacity: 0.3;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%);
+    background-size: 100% 4px;
 }
 
-.video-item {
-    position: relative;
-    width: 100%;
-    padding-top: 56.25%; /* 16:9の比率を維持 */
-    background: #000;
-    border: 5px solid var(--main-text); /* 黒い枠線でポップに */
-    box-shadow: 10px 10px 0px var(--main-text); /* 影をつけて立体的に */
+/* 各ノイズ素材（前回の設定を維持） */
+.grain { background-image: url("https://upload.wikimedia.org/wikipedia/commons/7/76/1k_Grain.png"); }
+.static { background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJuIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC44NSIgbnVtT2N0YXZlcz0iNCIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNuKSIgb3BhY2l0eT0iMC4yIi8+PC9zdmc+'); }
+.chromatic { background: radial-gradient(circle, transparent 30%, rgba(0, 255, 255, 0.1) 60%, rgba(255, 0, 255, 0.1) 100%); }
+.vignette { background: radial-gradient(circle, transparent 10%, rgba(0,0,0,0.9) 130%); }
+
+/* Start Screen */
+#start-screen {
+    position: fixed; inset: 0; z-index: 100;
+    display: flex; justify-content: center; align-items: center;
+    cursor: pointer;
 }
 
-.video-item iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+.tap-text {
+    color: white; font-family: 'Archivo Black', sans-serif;
+    font-size: 2rem; letter-spacing: 0.5rem;
+    animation: blink 1.5s infinite;
 }
+
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* ロゴ設定 */
+#entrance-container {
+    position: relative; z-index: 50;
+    width: 100vw; height: 100vh;
+    display: flex; justify-content: center; align-items: center;
+    opacity: 0; transition: opacity 2s ease;
+}
+
+#entrance-container.show { opacity: 1; }
+#main-logo { width: 380px; height: auto; }
+
+.hidden { display: none; }

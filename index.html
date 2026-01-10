@@ -2,20 +2,27 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>でかいポップをつくろうよ</title>
-    <link rel="stylesheet" href="css/style.css"> </head>
-<body>
-    <div class="container">
-        <h1>BIG POP<br>PROJECT</h1>
-        
-        <section id="works">
-            <h2>WORKS</h2>
-            <div class="video-grid">
-                <div class="video-item">
-                    <iframe width="560" height="315" src="https://www.youtube.com/embed/あなたの動画ID" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                </div>
-            </div>
-        </section>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kpia Entrance</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+</head>
+<body class="is-waiting"> <div id="world-background">
+        <div class="noise-layer scanlines"></div>
+        <div id="noise-grain" class="noise-layer grain"></div>
+        <div id="noise-static" class="noise-layer static"></div>
+        <div id="noise-chromatic" class="noise-layer chromatic"></div>
+        <div id="noise-vignette" class="noise-layer vignette"></div>
     </div>
+
+    <div id="start-screen">
+        <div class="tap-text">TAP TO START</div>
+    </div>
+
+    <div id="entrance-container" class="hidden">
+        <img src="images/kpia_logo_liquid_yellow_toka.png" id="main-logo" alt="Kpia Logo">
+    </div>
+
+    <script src="js/script.js"></script>
 </body>
 </html>
