@@ -1,12 +1,18 @@
 /**
- * 1. ノイズエフェクト制御
- * ロード画面中のザラザラした視覚効果をループさせます。
+ * script.js - Organized Version
  */
+
+let lastPoppedBubble = null;
+let time = 0;
+
+/* ==========================================
+   1. ノイズエフェクト制御
+   ========================================== */
 function animateNoise(id, maxOpacity) {
     const el = document.getElementById(id);
     if (!el) return;
 
-    // is-readyが付与されたら（ロード完了）ループを停止
+    // ロード完了(is-ready付与)で停止
     if (document.body.classList.contains('is-ready')) {
         el.style.opacity = 0;
         return;
@@ -17,86 +23,92 @@ function animateNoise(id, maxOpacity) {
     setTimeout(() => animateNoise(id, maxOpacity), 100);
 }
 
-/**
- * 2. 初期化処理
- * ページの読み込み完了時に実行されます。
- */
+/* ==========================================
+   2. 初期化処理
+   ========================================== */
 document.addEventListener('DOMContentLoaded', () => {
     // ノイズ開始
     animateNoise('noise-grain', 0.15);
     animateNoise('noise-static', 0.1);
 
-    // 2秒後にエントランスを表示
+    // 2秒後にエントランスへ切り替え
     setTimeout(() => {
-        console.log("Switching to Entrance...");
         document.body.classList.add('is-ready');
-        
-        // 座標計算が狂わないよう、表示が確定した後に描画ループを開始
+        // 表示確定後に線の描画を開始
         requestAnimationFrame(updateLines);
     }, 2000);
 });
 
-/**
- * 3. シャボン玉を弾けさせる処理（全バブル対応版）
- */
-// script.js
-
-let lastPoppedBubble = null;
-
+/* ==========================================
+   3. バブルのクリック・遷移処理
+   ========================================== */
 function popBubble(element) {
     if (!element || element.classList.contains('expanding')) return;
-    
-    // どのバブルが巨大化したかを記憶
-    lastPoppedBubble = element; 
-    const label = element.innerText.trim();
 
-    // 巨大化アニメーション開始
-    element.classList.remove('shrinking'); 
+    // カテゴリ判定
+    const span = element.querySelector('span');
+    const rawText = span ? span.innerText : element.innerText;
+    const label = rawText.replace(/\s+/g, '').toUpperCase();
+    
+    // アニメーション準備：文字を隠して拡大クラス付与
+    if (span) span.style.display = 'none';
+    lastPoppedBubble = element;
     element.classList.add('expanding');
 
+    const pageData = {
+        'MUSIC': { title: 'MUSIC', desc: 'Exploring new soundscapes. Listen to my latest tracks and experimental sounds.' },
+        'MIX':   { title: 'MIX',   desc: 'Non-stop sonic journeys. Special DJ sets and curated compilations.' },
+        'SING':  { title: 'SING',  desc: 'Vocal expressions. Collection of singing works and original covers.' },
+        'PLAY':  { title: 'PLAY',  desc: 'Visuals and interactive works. Experience the performance through video.' },
+        'LIVE':  { title: 'LIVE',  desc: 'Connect in real-time. Check the upcoming show schedules and event info.' }
+    };
+
+    const data = pageData[label];
+
     setTimeout(() => {
-        // コンテンツ表示
-        const area = document.getElementById('content-area');
-        const inner = document.getElementById('inner-content');
-        inner.innerHTML = `<h1>${label}</h1><p>Welcome to ${label} Section</p>`;
-        
-        // エントランス要素を透明にする
+        // エントランスのUIを非表示にする
         document.getElementById('main-logo').style.opacity = '0';
         document.getElementById('bubble-lines').style.opacity = '0';
         document.querySelectorAll('.bubble').forEach(b => {
             if (b !== element) b.style.opacity = '0';
         });
 
+        // コンテンツの流し込み
+        const area = document.getElementById('content-area');
+        const inner = document.getElementById('inner-content');
+        
+        if (data) {
+            inner.innerHTML = `
+                <h1 style="color: white; font-size: 3.5rem; letter-spacing: 0.5rem; margin-bottom: 20px;">${data.title}</h1>
+                <p style="color: rgba(255,255,255,0.8); font-size: 1.2rem; line-height: 1.6; max-width: 500px; margin: 0 auto;">${data.desc}</p>
+            `;
+        } else {
+            inner.innerHTML = `<h1>${label}</h1><p>Content is being prepared...</p>`;
+        }
+        
         area.classList.remove('hidden');
         setTimeout(() => area.classList.add('visible'), 50);
     }, 800);
 }
 
+/**
+ * 元のエントランスに戻る
+ */
 function backToEntrance() {
-    console.log("Back button clicked!");
-
-    if (!lastPoppedBubble) {
-        console.error("No bubble to shrink back!");
-        return;
-    }
+    if (!lastPoppedBubble) return;
 
     const area = document.getElementById('content-area');
     area.classList.remove('visible');
 
-    // コンテンツが消えるのを待ってからバブルを縮める
     setTimeout(() => {
         area.classList.add('hidden');
 
-        // ★ クラスの付け替え
+        // バブルを縮小させる
         lastPoppedBubble.classList.remove('expanding');
-        
-        // ブラウザに「今の変化」を強制認識させる（重要！）
         void lastPoppedBubble.offsetWidth; 
-
-        // 縮小アニメーション開始
         lastPoppedBubble.classList.add('shrinking');
 
-        // ロゴや他の要素を復活させる
+        // エントランスUIの復帰
         setTimeout(() => {
             document.getElementById('main-logo').style.opacity = '1';
             document.getElementById('bubble-lines').style.opacity = '1';
@@ -104,37 +116,37 @@ function backToEntrance() {
                 b.style.opacity = '1';
                 b.style.display = 'flex';
             });
-        }, 300);
+        }, 100);
 
-        // 1.2秒後（アニメーション終了時）にクラスを掃除
+        // 縮小アニメーション完了後の掃除
         setTimeout(() => {
+            const span = lastPoppedBubble.querySelector('span');
+            if (span) span.style.display = 'inline-block';
             lastPoppedBubble.classList.remove('shrinking');
-            console.log("Shrink animation finished");
-        }, 1200);
+            lastPoppedBubble = null;
+        }, 500);
 
-    }, 400);
+    }, 300);
 }
 
-
-/**
- * 4. ぐにゃぐにゃ線の描画ループ
- * ロゴと各バブルを結ぶSVGパスを毎フレーム更新します。
- */
-let time = 0;
-
+/* ==========================================
+   4. ぐにゃぐにゃ線の描画ループ
+   ========================================== */
 function updateLines() {
     const logo = document.getElementById('main-logo');
-    if (!logo) return;
+    // ロゴが非表示（メニュー閲覧中など）は計算をスキップ
+    if (!logo || window.getComputedStyle(logo).opacity === '0') {
+        requestAnimationFrame(updateLines);
+        return;
+    }
 
-    // ロゴの中心座標と半径の計算
     const logoRect = logo.getBoundingClientRect();
     const logoX = logoRect.left + logoRect.width / 2 + window.scrollX;
     const logoY = logoRect.top + logoRect.height / 2 + window.scrollY;
-    const logoR = logoRect.width / 2.5; 
+    const logoR = logoRect.width / 2.5;
 
     time += 0.02;
 
-    // バブルごとの線の色
     const colors = [
         'rgba(220, 100, 100, 0.7)', // b1: MUSIC
         'rgba(220, 200, 100, 0.7)', // b2: MIX
@@ -146,42 +158,35 @@ function updateLines() {
     for (let i = 1; i <= 5; i++) {
         const bubble = document.querySelector(`.b${i}`);
         const path = document.getElementById(`line-b${i}`);
-        
+
         if (!bubble || !path) continue;
 
-        // バブルがはじけていない場合のみ描画
-        if (!bubble.classList.contains('popped')) {
+        // バブルが通常状態（拡大中や消滅中でない）のときだけ描画
+        if (!bubble.classList.contains('popped') && !bubble.classList.contains('expanding')) {
             const bRect = bubble.getBoundingClientRect();
             const bX = bRect.left + bRect.width / 2 + window.scrollX;
             const bY = bRect.top + bRect.height / 2 + window.scrollY;
             const bR = bRect.width / 2;
 
-            // ロゴとバブルを結ぶ角度
             const angle = Math.atan2(bY - logoY, bX - logoX);
-
-            // 開始点（ロゴの端）と終了点（バブルの端）
             const startX = logoX + Math.cos(angle) * logoR;
             const startY = logoY + Math.sin(angle) * logoR;
             const endX = bX - Math.cos(angle) * bR;
             const endY = bY - Math.sin(angle) * bR;
 
-            // ぐにゃぐにゃの制御点（ベジェ曲線）
             const waveX = Math.sin(time + i) * 40;
             const waveY = Math.cos(time * 0.8 + i) * 40;
             const cpX = (startX + endX) / 2 + waveX;
             const cpY = (startY + endY) / 2 + waveY;
 
-            // SVGパスを更新
             const d = `M ${startX} ${startY} Q ${cpX} ${cpY}, ${endX} ${endY}`;
             path.setAttribute('d', d);
-            path.setAttribute('stroke', colors[i-1]);
+            path.setAttribute('stroke', colors[i - 1]);
             path.classList.remove('line-hidden');
         } else {
-            // はじけていたら線を消す
             path.classList.add('line-hidden');
         }
     }
-    
-    // 次のフレームも実行
+
     requestAnimationFrame(updateLines);
 }

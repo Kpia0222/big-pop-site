@@ -13,6 +13,11 @@
 
     <div id="layer-bg"></div>
 
+    <div id="content-area" class="hidden">
+        <div id="inner-content"></div>
+        <button onclick="backToEntrance()" class="back-button">BACK</button>
+    </div>
+
     <svg id="bubble-lines">
         <path id="line-b1" d=""></path>
         <path id="line-b2" d=""></path>
@@ -32,10 +37,6 @@
         <div class="bubble b4" onclick="popBubble(this)"><span>PLAY</span></div>
         <div class="bubble b5" onclick="popBubble(this)"><span>LIVE</span></div>
 
-        <div id="content-area" class="hidden">
-            <div id="inner-content"></div>
-            <button onclick="backToEntrance()" class="back-button">BACK</button>
-        </div>
     </div>
 
     <div id="color-overlay"></div>

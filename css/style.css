@@ -10,13 +10,12 @@
 body, html {
     width: 100%;
     height: 100%;
-    overflow: hidden; /* スクロール禁止 */
-    background-color: #f90; /* 予備背景色 */
+    overflow: hidden;
+    background-color: #f90;
 }
 
-/* 全レイヤー共通：画面いっぱいに広げる */
-#layer-bg, 
-#layer-entrance, 
+#layer-bg,
+#layer-entrance,
 #layer-loading {
     position: fixed;
     inset: 0;
@@ -25,43 +24,40 @@ body, html {
 }
 
 /* ==========================================
-   2. 背景レイヤー (最背面: z-index 1)
+   2. 各レイヤーの重なり設定
+   ========================================== */
+#layer-bg       { z-index: 1; }
+#bubble-lines   { z-index: 2; }
+#layer-entrance { z-index: 5; }
+#layer-loading  { z-index: 100; }
+#content-area   { z-index: 2000; }
+
+/* ==========================================
+   3. 背景レイヤー
    ========================================== */
 #layer-bg {
-    z-index: 1;
     background-image: url('../images/background_entrance_01.JPG');
     background-size: cover;
     background-position: center;
 }
 
 /* ==========================================
-   3. エントランスレイヤー (中層: z-index 2〜10)
+   4. エントランス & ギミック
    ========================================== */
-
-/* --- ぐにゃぐにゃ線 (z-index: 2) --- */
 #bubble-lines {
-    position: fixed; /* absoluteからfixedに変更して確実に固定 */
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 2; /* 背景(1)の上、バブル(10)の下 */
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
     pointer-events: none !important;
-    overflow: visible; /* 枠外にはみ出しても描画されるようにする */
+    overflow: visible;
 }
 
 #bubble-lines path {
     fill: none !important;
-    /* 太さを 7 → 1.5 または 2 に落として繊細にする */
-    stroke-width: 4; 
+    stroke-width: 4;
     stroke-linecap: round;
-    
-    /* 線の透明度を下げて、背景に馴染ませる */
     opacity: 0.3;
-
-    /* 光彩（ドロップシャドウ）を弱くして「ぼんやり」させる */
     filter: blur(0.5px) drop-shadow(0 0 3px rgba(255, 255, 255, 0.3));
-    
     transition: opacity 0.5s ease;
 }
 
@@ -70,9 +66,7 @@ body, html {
     visibility: hidden;
 }
 
-/* --- メインコンテンツ容器 (z-index: 5) --- */
 #layer-entrance {
-    z-index: 5;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -81,13 +75,11 @@ body, html {
     transition: opacity 2.5s ease, transform 2.5s cubic-bezier(0.2, 0, 0.2, 1);
 }
 
-/* 準備完了時（JSで制御） */
 body.is-ready #layer-entrance {
     opacity: 1;
     transform: scale(1);
 }
 
-/* --- ロゴ設定 --- */
 #main-logo {
     width: 200px;
     height: auto;
@@ -101,20 +93,19 @@ body.is-ready #layer-entrance {
     50% { filter: url(#liquid-filter) brightness(1.15); }
 }
 
-/* --- シャボン玉共通 (z-index: 10) --- */
+/* --- シャボン玉共通 --- */
 .bubble {
     position: absolute;
-    z-index: 10; /* 線やロゴより前に配置 */
+    z-index: 10;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    pointer-events: auto !important; /* 確実にクリックに反応させる */
+    pointer-events: auto !important;
     user-select: none;
     opacity: 0;
     transition: opacity 2s ease;
-    
-    /* フォント・装飾 */
+
     color: white;
     font-family: 'Space Mono', monospace;
     font-weight: bold;
@@ -122,32 +113,20 @@ body.is-ready #layer-entrance {
     text-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.4);
     backdrop-filter: blur(2px);
-}
 
-body.is-ready .bubble {
-    opacity: 1;
-}
-
-/* シャボン玉のアニメーション */
-.bubble {
-    animation: 
-        float-bubble 15s infinite ease-in-out,
-        morph-bubble 10s infinite ease-in-out;
-    transform-origin: center;
-
-    /* 巨大化しても角を丸く保つための強制設定 */
     border-radius: 50% !important;
-    overflow: hidden; /* 中身が四角くはみ出すのを防ぐ */
-    
-    /* ブラウザに「これは常に丸いですよ」と再認識させる魔法の1行 */
+    overflow: hidden;
     mask-image: radial-gradient(circle, white 100%, transparent 100%);
     -webkit-mask-image: radial-gradient(circle, white 100%, transparent 100%);
-
-    /* 描画のガタつき（四角化）を防ぐ */
     backface-visibility: hidden;
     perspective: 1000px;
     transform-origin: center center;
+
+    animation: float-bubble 15s infinite ease-in-out, morph-bubble 10s infinite ease-in-out;
 }
+
+body.is-ready .bubble { opacity: 1; }
+.bubble span { transition: opacity 0.3s ease; }
 
 @keyframes morph-bubble {
     0%, 100% { border-radius: 50%; }
@@ -160,46 +139,80 @@ body.is-ready .bubble {
     50% { transform: translate(-10px, -30px) rotate(-2deg); }
 }
 
-/* --- シャボン玉 個別配置・色 (PC) --- */
-.b1 { width: 280px; height: 280px; top: -2%; left: -2%; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.5), rgba(220,130,130,0.3)); box-shadow: inset 0 10px 20px rgba(255,255,255,0.4); }
-.b2 { width: 200px; height: 200px; top: 65%; left: 5%; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.5), rgba(220,205,140,0.3)); box-shadow: inset 0 10px 20px rgba(255,255,255,0.4); }
-.b3 { width: 240px; height: 240px; top: 5%; right: -3%; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.5), rgba(150,180,225,0.3)); box-shadow: inset 0 10px 20px rgba(255,255,255,0.4); }
-.b4 { width: 160px; height: 160px; top: 55%; right: 5%; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.5), rgba(180,150,225,0.3)); box-shadow: inset 0 10px 20px rgba(255,255,255,0.4); }
-.b5 { width: 220px; height: 220px; bottom: 5%; left: 45%; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.5), rgba(170,205,150,0.3)); box-shadow: inset 0 10px 20px rgba(255,255,255,0.4); }
+/* --- シャボン玉 個別配置 (初期サイズを設定) --- */
+.bubble.b1 { --init-size: 280px; --bg-color: #ffcc00; width: var(--init-size); height: var(--init-size); top: -2%; left: -2%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), rgba(220, 130, 130, 0.3)); box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.4); }
+.bubble.b2 { --init-size: 200px; --bg-color: #ff3366; width: var(--init-size); height: var(--init-size); top: 65%; left: 5%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), rgba(220, 205, 140, 0.3)); box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.4); }
+.bubble.b3 { --init-size: 240px; --bg-color: #00ffcc; width: var(--init-size); height: var(--init-size); top: 5%; right: -3%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), rgba(150, 180, 225, 0.3)); box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.4); }
+.bubble.b4 { --init-size: 160px; --bg-color: #3366ff; width: var(--init-size); height: var(--init-size); top: 55%; right: 5%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), rgba(180, 150, 225, 0.3)); box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.4); }
+.bubble.b5 { --init-size: 220px; --bg-color: #9933ff; width: var(--init-size); height: var(--init-size); bottom: 5%; left: 45%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), rgba(170, 205, 150, 0.3)); box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.4); }
 
-/* --- 弾けるアニメーション --- */
-.bubble.popped {
-    animation: bubble-pop 0.3s forwards ease-out !important;
+/* ==========================================
+   5. 遷移・拡大アニメーション (重要修正)
+   ========================================== */
+
+/* 計算式: 1200px (目標の直径) / 各バブルの初期サイズ
+   これにより、どのバブルも最終的に同じ大きさになります。
+*/
+.bubble.expanding {
+    --target-scale: calc(1200px / var(--init-size));
+    animation: bubble-expand 1.2s forwards cubic-bezier(0.4, 0, 0.2, 1) !important;
+    z-index: 1000 !important;
     pointer-events: none;
 }
+.bubble.expanding span { opacity: 0; }
+
+.bubble.shrinking {
+    --target-scale: calc(1200px / var(--init-size));
+    animation: bubble-shrink 1.2s forwards cubic-bezier(0.4, 0, 0.2, 1) !important;
+    z-index: 1000 !important;
+}
+
+@keyframes bubble-expand {
+    0% { transform: scale(1); background-color: initial; }
+    100% { 
+        transform: scale(var(--target-scale)); 
+        background-color: var(--bg-color) !important; 
+        opacity: 0.95; 
+        filter: blur(4px) saturate(1.5); 
+    }
+}
+
+@keyframes bubble-shrink {
+    0% { transform: scale(var(--target-scale)); opacity: 0.8; filter: blur(4px) saturate(1.5); }
+    100% { transform: scale(1); opacity: 1; filter: blur(0px) saturate(1); }
+}
+
+/* 弾けるアニメーション */
+.bubble.popped { animation: bubble-pop 0.3s forwards ease-out !important; pointer-events: none; }
 @keyframes bubble-pop {
     0% { transform: scale(1); opacity: 1; }
     100% { transform: scale(2.5); opacity: 0; filter: brightness(3) blur(10px); }
 }
 
 /* ==========================================
-   3a. 遷移レイヤー (中層: z-index 2〜10)
+   6. コンテンツ表示エリア
    ========================================== */
 #content-area {
-    position: relative;
-    z-index: 300; /* overlayより手前 */
-    color: white;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%; max-width: 800px;
     text-align: center;
+    pointer-events: none;
     opacity: 0;
-    transition: opacity 1s ease;
+    transition: opacity 0.5s;
 }
 
 #content-area.visible {
     opacity: 1;
+    pointer-events: auto;
 }
 
-.hidden { display: none; }
+.hidden { display: none !important; }
 
 .back-button {
     position: relative;
     z-index: 2100;
-    pointer-events: auto !important;
-    cursor: pointer;
     margin-top: 50px;
     background: transparent;
     border: 1px solid white;
@@ -209,70 +222,10 @@ body.is-ready .bubble {
     font-family: 'Space Mono', monospace;
 }
 
-/* 巨大化（行き） */
-.bubble.expanding {
-    animation: bubble-expand 1.2s forwards cubic-bezier(0.4, 0, 0.2, 1) !important;
-    z-index: 1000 !important;
-}
-
-/* 縮小（戻り）: アニメーション名を明示的に切り替える */
-.bubble.shrinking {
-    animation: bubble-shrink 1.2s forwards cubic-bezier(0.4, 0, 0.2, 1) !important;
-    z-index: 1000 !important;
-}
-
-/* アニメーション中の補正 */
-@keyframes bubble-expand {
-    0% { 
-        transform: scale(1); 
-        border-radius: 50%;
-    }
-    100% { 
-        transform: scale(25); 
-        border-radius: 50%; /* 巨大化しても50%を維持 */
-    }
-}
-
-@keyframes bubble-shrink {
-    0% { 
-        transform: scale(25); 
-        border-radius: 50%;
-    }
-    100% { 
-        transform: scale(1); 
-        border-radius: 50%;
-    }
-}
-
-/* 巨大化中のバブルに付与するクラス */
-.bubble.expanding {
-    animation: bubble-expand 1.2s forwards cubic-bezier(0.4, 0, 0.2, 1) !important;
-    z-index: 1000 !important; /* ロード画面をも超える最前面へ */
-    pointer-events: none;
-}
-
-/* コンテンツのフェードイン用 */
-#content-area {
-    position: fixed; /* absoluteより安定します */
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 2000 !important; /* バブル(1000)より大きい値にする */
-    width: 90%;
-    max-width: 800px;
-    text-align: center;
-    pointer-events: auto; /* クリックを有効に */
-}
-
-#content-area.visible {
-    opacity: 1;
-}
-
 /* ==========================================
-   4. ロード画面レイヤー (最前面: z-index 100)
+   7. ロード画面レイヤー
    ========================================== */
 #layer-loading {
-    z-index: 100;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -286,34 +239,10 @@ body.is-ready #layer-loading {
     pointer-events: none;
 }
 
-.loading-ui {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.loading-text {
-    color: #fff;
-    font-family: 'Space Mono', monospace;
-    font-size: 1.2rem;
-    letter-spacing: 0.5rem;
-    margin-bottom: 20px;
-}
-
-.loading-bar-container {
-    width: 200px;
-    height: 1px;
-    background: rgba(255, 255, 255, 0.3);
-    overflow: hidden;
-}
-
-.loading-bar {
-    width: 100%;
-    height: 100%;
-    background: #fff;
-    transform: translateX(-100%);
-    animation: loadMove 2s forwards linear;
-}
+.loading-ui { display: flex; flex-direction: column; align-items: center; }
+.loading-text { color: #fff; font-family: 'Space Mono', monospace; font-size: 1.2rem; letter-spacing: 0.5rem; margin-bottom: 20px; }
+.loading-bar-container { width: 200px; height: 1px; background: rgba(255, 255, 255, 0.3); overflow: hidden; }
+.loading-bar { width: 100%; height: 100%; background: #fff; transform: translateX(-100%); animation: loadMove 2s forwards linear; }
 
 @keyframes loadMove { to { transform: translateX(0); } }
 
@@ -323,15 +252,11 @@ body.is-ready #layer-loading {
 .static { background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJuIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC44NSIgbnVtT2N0YXZlcz0iNCIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNuKSIgb3BhY2l0eT0iMC4yIi8+PC9zdmc+'); }
 
 /* ==========================================
-   5. レスポンシブ (スマホ対応)
+   8. レスポンシブ
    ========================================== */
 @media screen and (max-width: 768px) {
     #main-logo { width: 130px; }
     .bubble span { font-size: 0.85rem; }
-    /* スマホ用の配置 */
-    .b1 { width: 130px; height: 130px; top: 5%; left: 5%; }
-    .b2 { width: 100px; height: 100px; top: 15%; left: 65%; }
-    .b3 { width: 120px; height: 120px; top: 40%; left: -5%; }
-    .b4 { width: 100px; height: 100px; top: 50%; left: 70%; }
-    .b5 { width: 110px; height: 110px; top: 75%; left: 35%; }
+    /* スマホ時は目標サイズを少し小さく(例: 800px)しても良い */
+    .bubble.expanding, .bubble.shrinking { --target-scale: calc(800px / var(--init-size)); }
 }
