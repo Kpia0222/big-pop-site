@@ -294,6 +294,39 @@ body.is-ready .bubble {
     left: 38%;
 }
 
+/* --- 各シャボン玉の色指定（ほんの少しだけ濃いめ） --- */
+
+/* MUSIC: ローズ（赤） */
+.b1 { 
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.45), rgba(220, 120, 120, 0.35) 60%, rgba(180, 80, 80, 0.15));
+    box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.5), inset 10px -10px 25px rgba(200, 100, 100, 0.3), 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* MIX: アンバー（黄） */
+.b2 { 
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.45), rgba(220, 200, 130, 0.35) 60%, rgba(180, 160, 100, 0.15));
+    box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.5), inset 10px -10px 25px rgba(200, 180, 110, 0.3), 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* SING: セルリアン（青） */
+.b3 { 
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.45), rgba(140, 170, 220, 0.35) 60%, rgba(100, 130, 180, 0.15));
+    box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.5), inset 10px -10px 25px rgba(110, 140, 200, 0.3), 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* PLAY: アメジスト（紫） */
+.b4 { 
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.45), rgba(170, 140, 220, 0.35) 60%, rgba(130, 100, 180, 0.15));
+    box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.5), inset 10px -10px 25px rgba(140, 110, 200, 0.3), 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* LIVE: ピスタチオ（緑） */
+.b5 { 
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.45), rgba(160, 200, 140, 0.35) 60%, rgba(110, 160, 100, 0.15));
+    box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.5), inset 10px -10px 25px rgba(130, 180, 110, 0.3), 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+
 /* 中央下 */
 
 /* 弾けるアニメーション */
