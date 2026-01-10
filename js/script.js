@@ -1,7 +1,9 @@
 /**
- * script.js - Organized Version
+ * script.js - Improved Logic
  */
 
+// 状態管理
+let isTransitioning = false; 
 let lastPoppedBubble = null;
 let time = 0;
 
@@ -12,7 +14,6 @@ function animateNoise(id, maxOpacity) {
     const el = document.getElementById(id);
     if (!el) return;
 
-    // ロード完了(is-ready付与)で停止
     if (document.body.classList.contains('is-ready')) {
         el.style.opacity = 0;
         return;
@@ -27,14 +28,11 @@ function animateNoise(id, maxOpacity) {
    2. 初期化処理
    ========================================== */
 document.addEventListener('DOMContentLoaded', () => {
-    // ノイズ開始
     animateNoise('noise-grain', 0.15);
     animateNoise('noise-static', 0.1);
 
-    // 2秒後にエントランスへ切り替え
     setTimeout(() => {
         document.body.classList.add('is-ready');
-        // 表示確定後に線の描画を開始
         requestAnimationFrame(updateLines);
     }, 2000);
 });
@@ -43,14 +41,16 @@ document.addEventListener('DOMContentLoaded', () => {
    3. バブルのクリック・遷移処理
    ========================================== */
 function popBubble(element) {
-    if (!element || element.classList.contains('expanding')) return;
+    // すでに遷移中、またはメニューが開いているなら絶対拒否
+    if (isTransitioning || document.body.classList.contains('is-menu-open')) return;
+    
+    isTransitioning = true; 
+    document.body.classList.add('is-switching'); // CSS側でbubbleのpointer-eventsをnoneにする
 
-    // カテゴリ判定
     const span = element.querySelector('span');
     const rawText = span ? span.innerText : element.innerText;
     const label = rawText.replace(/\s+/g, '').toUpperCase();
     
-    // アニメーション準備：文字を隠して拡大クラス付与
     if (span) span.style.display = 'none';
     lastPoppedBubble = element;
     element.classList.add('expanding');
@@ -66,14 +66,16 @@ function popBubble(element) {
     const data = pageData[label];
 
     setTimeout(() => {
-        // エントランスのUIを非表示にする
+        // 背景要素を物理的に隠す
         document.getElementById('main-logo').style.opacity = '0';
         document.getElementById('bubble-lines').style.opacity = '0';
         document.querySelectorAll('.bubble').forEach(b => {
-            if (b !== element) b.style.opacity = '0';
+            if (b !== element) {
+                b.style.opacity = '0';
+                b.style.visibility = 'hidden'; // クリック判定を完全に消すための保険
+            }
         });
 
-        // コンテンツの流し込み
         const area = document.getElementById('content-area');
         const inner = document.getElementById('inner-content');
         
@@ -82,12 +84,15 @@ function popBubble(element) {
                 <h1 style="color: white; font-size: 3.5rem; letter-spacing: 0.5rem; margin-bottom: 20px;">${data.title}</h1>
                 <p style="color: rgba(255,255,255,0.8); font-size: 1.2rem; line-height: 1.6; max-width: 500px; margin: 0 auto;">${data.desc}</p>
             `;
-        } else {
-            inner.innerHTML = `<h1>${label}</h1><p>Content is being prepared...</p>`;
         }
         
         area.classList.remove('hidden');
-        setTimeout(() => area.classList.add('visible'), 50);
+        setTimeout(() => {
+            area.classList.add('visible');
+            document.body.classList.add('is-menu-open'); // メニュー開栓フラグ
+            document.body.classList.remove('is-switching');
+            isTransitioning = false;
+        }, 50);
     }, 800);
 }
 
@@ -95,7 +100,10 @@ function popBubble(element) {
  * 元のエントランスに戻る
  */
 function backToEntrance() {
-    if (!lastPoppedBubble) return;
+    if (isTransitioning) return;
+    isTransitioning = true;
+    document.body.classList.add('is-switching');
+    document.body.classList.remove('is-menu-open'); // メニュー判定を消す
 
     const area = document.getElementById('content-area');
     area.classList.remove('visible');
@@ -103,28 +111,30 @@ function backToEntrance() {
     setTimeout(() => {
         area.classList.add('hidden');
 
-        // バブルを縮小させる
         lastPoppedBubble.classList.remove('expanding');
         void lastPoppedBubble.offsetWidth; 
         lastPoppedBubble.classList.add('shrinking');
 
-        // エントランスUIの復帰
         setTimeout(() => {
             document.getElementById('main-logo').style.opacity = '1';
             document.getElementById('bubble-lines').style.opacity = '1';
             document.querySelectorAll('.bubble').forEach(b => {
                 b.style.opacity = '1';
+                b.style.visibility = 'visible';
                 b.style.display = 'flex';
             });
         }, 100);
 
-        // 縮小アニメーション完了後の掃除
         setTimeout(() => {
             const span = lastPoppedBubble.querySelector('span');
             if (span) span.style.display = 'inline-block';
             lastPoppedBubble.classList.remove('shrinking');
             lastPoppedBubble = null;
-        }, 500);
+            
+            // 完全に元に戻ってからすべてのロックを解除
+            document.body.classList.remove('is-switching');
+            isTransitioning = false;
+        }, 800); // 縮小アニメーションが確実に終わるまで待つ
 
     }, 300);
 }
@@ -134,7 +144,6 @@ function backToEntrance() {
    ========================================== */
 function updateLines() {
     const logo = document.getElementById('main-logo');
-    // ロゴが非表示（メニュー閲覧中など）は計算をスキップ
     if (!logo || window.getComputedStyle(logo).opacity === '0') {
         requestAnimationFrame(updateLines);
         return;
@@ -147,22 +156,12 @@ function updateLines() {
 
     time += 0.02;
 
-    const colors = [
-        'rgba(220, 100, 100, 0.7)', // b1: MUSIC
-        'rgba(220, 200, 100, 0.7)', // b2: MIX
-        'rgba(100, 150, 220, 0.7)', // b3: SING
-        'rgba(160, 100, 220, 0.7)', // b4: PLAY
-        'rgba(120, 200, 100, 0.7)'  // b5: LIVE
-    ];
-
     for (let i = 1; i <= 5; i++) {
         const bubble = document.querySelector(`.b${i}`);
         const path = document.getElementById(`line-b${i}`);
-
         if (!bubble || !path) continue;
 
-        // バブルが通常状態（拡大中や消滅中でない）のときだけ描画
-        if (!bubble.classList.contains('popped') && !bubble.classList.contains('expanding')) {
+        if (!bubble.classList.contains('expanding') && !bubble.classList.contains('shrinking') && !document.body.classList.contains('is-menu-open')) {
             const bRect = bubble.getBoundingClientRect();
             const bX = bRect.left + bRect.width / 2 + window.scrollX;
             const bY = bRect.top + bRect.height / 2 + window.scrollY;
@@ -174,19 +173,20 @@ function updateLines() {
             const endX = bX - Math.cos(angle) * bR;
             const endY = bY - Math.sin(angle) * bR;
 
-            const waveX = Math.sin(time + i) * 40;
-            const waveY = Math.cos(time * 0.8 + i) * 40;
-            const cpX = (startX + endX) / 2 + waveX;
-            const cpY = (startY + endY) / 2 + waveY;
+            const cpX = (startX + endX) / 2 + Math.sin(time + i) * 40;
+            const cpY = (startY + endY) / 2 + Math.cos(time * 0.8 + i) * 40;
 
-            const d = `M ${startX} ${startY} Q ${cpX} ${cpY}, ${endX} ${endY}`;
-            path.setAttribute('d', d);
-            path.setAttribute('stroke', colors[i - 1]);
+            path.setAttribute('d', `M ${startX} ${startY} Q ${cpX} ${cpY}, ${endX} ${endY}`);
             path.classList.remove('line-hidden');
         } else {
             path.classList.add('line-hidden');
         }
     }
-
     requestAnimationFrame(updateLines);
 }
+
+/* popBubble関数内のinnerHTML部分を少し強化 */
+inner.innerHTML = `
+    <h1 style="color: white; font-size: 3.5rem; letter-spacing: 0.5rem; margin-bottom: 20px; word-wrap: break-word;">${data.title}</h1>
+    <p style="color: rgba(255,255,255,0.8); font-size: 1.2rem; line-height: 1.6; max-width: 500px; margin: 0 auto; padding: 0 15px;">${data.desc}</p>
+`;

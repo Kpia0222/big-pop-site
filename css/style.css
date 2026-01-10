@@ -104,7 +104,7 @@ body.is-ready #layer-entrance {
     pointer-events: auto !important;
     user-select: none;
     opacity: 0;
-    transition: opacity 2s ease;
+    transition: opacity 1.5s ease; /* 少し速めて快適に */
 
     color: white;
     font-family: 'Space Mono', monospace;
@@ -125,6 +125,12 @@ body.is-ready #layer-entrance {
     animation: float-bubble 15s infinite ease-in-out, morph-bubble 10s infinite ease-in-out;
 }
 
+/* ★超重要：遷移中・またはメニュー表示中はすべてのバブルのクリックを拒否する */
+body.is-switching .bubble,
+body.is-menu-open .bubble {
+    pointer-events: none !important;
+}
+
 body.is-ready .bubble { opacity: 1; }
 .bubble span { transition: opacity 0.3s ease; }
 
@@ -139,7 +145,7 @@ body.is-ready .bubble { opacity: 1; }
     50% { transform: translate(-10px, -30px) rotate(-2deg); }
 }
 
-/* --- シャボン玉 個別配置 (初期サイズを設定) --- */
+/* --- 個別配置と初期サイズ --- */
 .bubble.b1 { --init-size: 280px; --bg-color: #ffcc00; width: var(--init-size); height: var(--init-size); top: -2%; left: -2%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), rgba(220, 130, 130, 0.3)); box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.4); }
 .bubble.b2 { --init-size: 200px; --bg-color: #ff3366; width: var(--init-size); height: var(--init-size); top: 65%; left: 5%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), rgba(220, 205, 140, 0.3)); box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.4); }
 .bubble.b3 { --init-size: 240px; --bg-color: #00ffcc; width: var(--init-size); height: var(--init-size); top: 5%; right: -3%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), rgba(150, 180, 225, 0.3)); box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.4); }
@@ -147,17 +153,12 @@ body.is-ready .bubble { opacity: 1; }
 .bubble.b5 { --init-size: 220px; --bg-color: #9933ff; width: var(--init-size); height: var(--init-size); bottom: 5%; left: 45%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5), rgba(170, 205, 150, 0.3)); box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.4); }
 
 /* ==========================================
-   5. 遷移・拡大アニメーション (重要修正)
+   5. 遷移・拡大アニメーション
    ========================================== */
-
-/* 計算式: 1200px (目標の直径) / 各バブルの初期サイズ
-   これにより、どのバブルも最終的に同じ大きさになります。
-*/
 .bubble.expanding {
     --target-scale: calc(1200px / var(--init-size));
     animation: bubble-expand 1.2s forwards cubic-bezier(0.4, 0, 0.2, 1) !important;
     z-index: 1000 !important;
-    pointer-events: none;
 }
 .bubble.expanding span { opacity: 0; }
 
@@ -182,13 +183,6 @@ body.is-ready .bubble { opacity: 1; }
     100% { transform: scale(1); opacity: 1; filter: blur(0px) saturate(1); }
 }
 
-/* 弾けるアニメーション */
-.bubble.popped { animation: bubble-pop 0.3s forwards ease-out !important; pointer-events: none; }
-@keyframes bubble-pop {
-    0% { transform: scale(1); opacity: 1; }
-    100% { transform: scale(2.5); opacity: 0; filter: brightness(3) blur(10px); }
-}
-
 /* ==========================================
    6. コンテンツ表示エリア
    ========================================== */
@@ -211,8 +205,6 @@ body.is-ready .bubble { opacity: 1; }
 .hidden { display: none !important; }
 
 .back-button {
-    position: relative;
-    z-index: 2100;
     margin-top: 50px;
     background: transparent;
     border: 1px solid white;
@@ -220,7 +212,9 @@ body.is-ready .bubble { opacity: 1; }
     padding: 10px 20px;
     cursor: pointer;
     font-family: 'Space Mono', monospace;
+    transition: background 0.3s;
 }
+.back-button:hover { background: rgba(255,255,255,0.2); }
 
 /* ==========================================
    7. ロード画面レイヤー
@@ -252,11 +246,49 @@ body.is-ready #layer-loading {
 .static { background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJuIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC44NSIgbnVtT2N0YXZlcz0iNCIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNuKSIgb3BhY2l0eT0iMC4yIi8+PC9zdmc+'); }
 
 /* ==========================================
-   8. レスポンシブ
+   8. スマホ向けレスポンシブ調整 (修正版)
    ========================================== */
 @media screen and (max-width: 768px) {
-    #main-logo { width: 130px; }
-    .bubble span { font-size: 0.85rem; }
-    /* スマホ時は目標サイズを少し小さく(例: 800px)しても良い */
-    .bubble.expanding, .bubble.shrinking { --target-scale: calc(800px / var(--init-size)); }
+    /* ロゴを少し小さくして中央のスペースを確保 */
+    #main-logo { 
+        width: 120px; 
+    }
+
+    /* バブル全体のサイズ感と配置をスマホ用に最適化 */
+    .bubble {
+        --init-size: 140px !important; /* スマホでは一律少し小さく */
+        width: var(--init-size);
+        height: var(--init-size);
+        font-size: 0.75rem;
+    }
+
+    /* 重なりを防ぐための配置再計算（画面端に寄りすぎないよう調整） */
+    .bubble.b1 { top: 10%; left: 10%; }  /* 左上 */
+    .bubble.b2 { top: 65%; left: 8%; }   /* 左下 */
+    .bubble.b3 { top: 12%; right: 10%; } /* 右上 */
+    .bubble.b4 { top: 68%; right: 8%; }  /* 右下 */
+    .bubble.b5 { bottom: 8%; left: 50%; transform: translateX(-50%); } /* 真下 */
+
+    /* 拡大アニメーションの目標値をスマホ画面幅に合わせる */
+    .bubble.expanding, .bubble.shrinking { 
+        --target-scale: calc(100vw * 1.5 / var(--init-size)); 
+    }
+
+    /* コンテンツエリアの文字サイズ調整 */
+    #content-area h1 {
+        font-size: 2.2rem !important;
+        letter-spacing: 0.3rem !important;
+    }
+    #content-area p {
+        font-size: 1rem !important;
+        padding: 0 20px;
+        line-height: 1.5;
+    }
+
+    /* 戻るボタンを押しやすく */
+    .back-button {
+        padding: 15px 30px;
+        font-size: 1rem;
+        margin-top: 30px;
+    }
 }
