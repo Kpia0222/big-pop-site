@@ -11,24 +11,22 @@ body, html {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background-color: #000; /* 背景が読み込まれるまでの待機色 */
+    background-color: #000;
 }
 
+/* 共通レイヤー設定 */
 #layer-bg,
 #layer-entrance,
 #layer-loading {
-    background-color: rgba(0, 0, 0, 0.04);
-    background-blend-mode: darken;
-
-    transition: filter 1.5s ease; /* ロード時の演出用 */
     position: fixed;
     inset: 0;
     width: 100vw;
     height: 100vh;
+    transition: filter 1.5s ease;
 }
 
 /* ==========================================
-   2. 各レイヤーの重なり
+   2. 各レイヤーの重なり (z-index)
    ========================================== */
 #layer-bg       { z-index: 1; }
 #bubble-lines   { z-index: 2; }
@@ -43,32 +41,19 @@ body, html {
     background-image: url('../images/background_entrance_01.JPG');
     background-size: cover;
     background-position: center;
+    background-color: rgba(0, 0, 0, 0.04);
+    background-blend-mode: darken;
+    cursor: pointer;
+    pointer-events: auto; /* 背景クリックを有効化 */
+}
+
+body.is-menu-open #layer-bg {
+    filter: brightness(0.4) blur(5px);
 }
 
 /* ==========================================
-   4. エントランス & ギミック
+   4. エントランス & 中央ロゴ (コロナエフェクト追加)
    ========================================== */
-#bubble-lines {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    pointer-events: none !important;
-    overflow: visible;
-}
-
-#bubble-lines path {
-    fill: none !important;
-    stroke-width: 3;
-    stroke-linecap: round;
-    opacity: 0.5; /* 0.3から引き上げ */
-    transition: opacity 0.5s ease;
-}
-
-.line-hidden {
-    opacity: 0 !important;
-    visibility: hidden;
-}
-
 #layer-entrance {
     display: flex;
     justify-content: center;
@@ -76,6 +61,7 @@ body, html {
     opacity: 0;
     transform: scale(0.9);
     transition: opacity 2s ease, transform 2s cubic-bezier(0.2, 0, 0.2, 1);
+    pointer-events: none;
 }
 
 body.is-ready #layer-entrance {
@@ -84,23 +70,59 @@ body.is-ready #layer-entrance {
 }
 
 #main-logo {
+    position: absolute;
+    top: 62%; 
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: 200px;
     height: auto;
     z-index: 6;
-    animation: liquid-look 0.8s ease-in-out infinite;
-    filter: url(#liquid-filter);
+    
+    /* ロゴにもコロナフィルタを適用 */
+    filter: url(#liquid-filter) url(#corona-filter);
+    
+    /* ロゴ周囲の発光エフェクト */
+    box-shadow: 
+        0 0 40px 10px rgba(255, 255, 255, 0.1),
+        0 0 80px 20px rgba(255, 255, 255, 0.05);
+    border-radius: 50%; /* box-shadowを円形に広げるため */
+
+    animation: 
+        liquid-look 0.8s ease-in-out infinite,
+        logo-corona-pulse 4s infinite ease-in-out alternate;
     transition: opacity 0.8s ease;
 }
 
 @keyframes liquid-look {
-    0%, 100% { filter: url(#liquid-filter) brightness(1.05); }
-    50% { filter: url(#liquid-filter) brightness(1.15); }
+    0%, 100% { filter: url(#liquid-filter) url(#corona-filter) brightness(1.05); }
+    50% { filter: url(#liquid-filter) url(#corona-filter) brightness(1.15); }
 }
 
-/* --- シャボン玉共通 --- */
+@keyframes logo-corona-pulse {
+    0% { box-shadow: 0 0 30px 5px rgba(255, 255, 255, 0.1); transform: translate(-50%, -50%) scale(1); }
+    100% { box-shadow: 0 0 60px 15px rgba(255, 255, 255, 0.2); transform: translate(-50%, -50%) scale(1.02); }
+}
+
+/* ==========================================
+   5. バブル・ギミック共通設定
+   ========================================== */
+#bubble-lines {
+    position: fixed;
+    inset: 0;
+    pointer-events: none !important;
+    overflow: visible;
+}
+
+#bubble-lines path {
+    fill: none !important;
+    stroke-width: 3;
+    stroke-linecap: round;
+    opacity: 0.5;
+    transition: opacity 0.5s ease;
+}
+
 .bubble {
     position: absolute;
-    z-index: 10;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -108,63 +130,32 @@ body.is-ready #layer-entrance {
     pointer-events: auto !important;
     user-select: none;
     opacity: 0;
-    transition: opacity 1.5s ease, visibility 1.5s;
-
     color: white;
     font-family: 'Space Mono', monospace;
     font-weight: bold;
     font-size: 0.8rem;
     text-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.4);
     backdrop-filter: blur(2px);
-
     border-radius: 50% !important;
     overflow: hidden;
-    mask-image: radial-gradient(circle, white 100%, transparent 100%);
-    -webkit-mask-image: radial-gradient(circle, white 100%, transparent 100%);
     transform-origin: center center;
-
-    animation: float-bubble 15s infinite ease-in-out, morph-bubble 10s infinite ease-in-out;
-
-    position: absolute;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 50% !important;
-    
-    /* --- コロナ風エフェクトの追加 --- */
-    
-    /* 1. 輪郭を波打たせるフィルタを適用 */
     filter: url(#corona-filter);
-    
-    /* 2. 重層的な光の漏れ（内側と外側にふわふわした光） */
-    box-shadow: 
-        0 0 30px 10px rgba(255, 255, 255, 0.2),  /* 外側の淡い光 */
-        0 0 60px 20px var(--bg-color),            /* カテゴリー色の光 */
-        inset 0 0 40px rgba(255, 255, 255, 0.4); /* 内側の輝き */
-
-    /* 3. 常に少しだけ震えるアニメーション */
+    transition: transform 1s, opacity 1s, filter 1s, visibility 1.5s;
     animation: 
         float-bubble 15s infinite ease-in-out, 
         corona-pulse 4s infinite ease-in-out alternate;
-        
-    border: none; /* 固い線は消したほうがコロナっぽくなります */
-    transition: transform 1s, opacity 1s, filter 1s;
 }
 
-/* 遷移中のクリック拒否 */
+body.is-ready .bubble { opacity: 1; }
+
 body.is-switching .bubble,
 body.is-menu-open .bubble {
     pointer-events: none !important;
 }
 
-body.is-ready .bubble { opacity: 1; }
-.bubble span { transition: opacity 0.3s ease; }
-
-@keyframes morph-bubble {
-    0%, 100% { border-radius: 50%; }
-    25% { border-radius: 60% 40% 55% 45% / 45% 55% 45% 55%; }
-    50% { border-radius: 45% 55% 40% 60% / 55% 45% 60% 40%; }
+.bubble span {
+    pointer-events: none;
+    transition: opacity 0.5s ease;
 }
 
 @keyframes float-bubble {
@@ -172,38 +163,26 @@ body.is-ready .bubble { opacity: 1; }
     50% { transform: translate(-10px, -20px) rotate(-1deg); }
 }
 
-/* --- PC用：個別配置と初期サイズ --- */
-/* --- 個別配置と初期サイズ (色味を少し濃く調整) --- */
-.bubble.b1 { --init-size: 280px; --bg-color: #ffcc00; width: var(--init-size); height: var(--init-size); top: 5%; left: 15%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(220, 130, 130, 0.5)); box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.4); }
-.bubble.b2 { --init-size: 200px; --bg-color: #ff3366; width: var(--init-size); height: var(--init-size); top: 65%; left: 10%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(220, 205, 140, 0.5)); box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.4); }
-.bubble.b3 { --init-size: 240px; --bg-color: #00ffcc; width: var(--init-size); height: var(--init-size); top: 8%; right: 15%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(150, 180, 225, 0.5)); box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.4); }
-.bubble.b4 { --init-size: 160px; --bg-color: #3366ff; width: var(--init-size); height: var(--init-size); top: 60%; right: 10%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(180, 150, 225, 0.5)); box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.4); }
-.bubble.b5 { --init-size: 220px; --bg-color: #9933ff; width: var(--init-size); height: var(--init-size); bottom: 8%; left: 45%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(170, 205, 150, 0.5)); box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.4); }
+@keyframes corona-pulse {
+    0% {
+        box-shadow: 0 0 30px 5px rgba(255, 255, 255, 0.2), 0 0 50px 15px var(--bg-color), inset 0 0 30px rgba(255, 255, 255, 0.4);
+    }
+    100% {
+        box-shadow: 0 0 50px 15px rgba(255, 255, 255, 0.3), 0 0 80px 30px var(--bg-color), inset 0 0 50px rgba(255, 255, 255, 0.5);
+    }
+}
+
+/* --- 個別配置 (PC用) --- */
+.bubble.b5 { --init-size: 200px; --bg-color: #9933ff; width: var(--init-size); height: var(--init-size); top: 8%; left: 50%; transform: translateX(-50%); background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(170, 205, 150, 0.5)); }
+.bubble.b1 { --init-size: 260px; --bg-color: #ffcc00; width: var(--init-size); height: var(--init-size); top: 12%; left: 14%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(220, 130, 130, 0.5)); }
+.bubble.b2 { --init-size: 190px; --bg-color: #ff3366; width: var(--init-size); height: var(--init-size); top: 15%; right: 8%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(220, 205, 140, 0.5)); }
+.bubble.b3 { --init-size: 230px; --bg-color: #00ffcc; width: var(--init-size); height: var(--init-size); bottom: 12%; left: 10%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(150, 180, 225, 0.5)); }
+.bubble.b4 { --init-size: 170px; --bg-color: #3366ff; width: var(--init-size); height: var(--init-size); bottom: 15%; right: 10%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(180, 150, 225, 0.5)); }
 
 /* ==========================================
-   5. 遷移・拡大アニメーション (中央移動版)
+   6. 遷移・拡大アニメーション
    ========================================== */
-
-body.is-menu-open #layer-bg {
-    filter: brightness(0.4) blur(5px);
-}
-
-/* 拡大・縮小中のバブル内の文字を隠す */
-.bubble.expanding span,
-.bubble.shrinking span {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    transition: opacity 0.3s ease; /* スッと消えるように */
-}
-
-/* 通常時のバブル内の文字（念のため追記） */
-.bubble span {
-    pointer-events: none; /* 文字がクリックの邪魔をしないように */
-    transition: opacity 0.5s ease;
-}
-   
 .bubble.expanding {
-    /* JSから渡される移動距離（--move-x, --move-y）を使って中央へ */
     --target-scale: calc(850px / var(--init-size));
     animation: bubble-to-center 1.2s forwards cubic-bezier(0.4, 0, 0.2, 1) !important;
     z-index: 1000 !important;
@@ -211,17 +190,13 @@ body.is-menu-open #layer-bg {
 
 .bubble.shrinking {
     --target-scale: calc(850px / var(--init-size));
-    /* 逆再生で元の位置に戻る */
     animation: bubble-from-center 1.2s forwards cubic-bezier(0.4, 0, 0.2, 1) !important;
     z-index: 1000 !important;
 }
 
 @keyframes bubble-to-center {
-    0% { 
-        transform: translate(0, 0) scale(1); 
-    }
+    0% { transform: translate(0, 0) scale(1); }
     100% { 
-        /* JSで計算した中央までの差分を適用 */
         transform: translate(var(--move-x), var(--move-y)) scale(var(--target-scale)); 
         background-color: var(--bg-color) !important;
         opacity: 0.95;
@@ -230,43 +205,12 @@ body.is-menu-open #layer-bg {
 }
 
 @keyframes bubble-from-center {
-    0% { 
-        transform: translate(var(--move-x), var(--move-y)) scale(var(--target-scale)); 
-        background-color: var(--bg-color);
-        opacity: 0.95;
-    }
-    100% { 
-        transform: translate(0, 0) scale(1); 
-        background-color: initial;
-        opacity: 1;
-    }
-}
-
-/* 脈動するような光のアニメーション */
-@keyframes corona-pulse {
-    0% {
-        box-shadow: 
-            0 0 30px 5px rgba(255, 255, 255, 0.2), 
-            0 0 50px 15px var(--bg-color),
-            inset 0 0 30px rgba(255, 255, 255, 0.4);
-    }
-    100% {
-        box-shadow: 
-            0 0 50px 15px rgba(255, 255, 255, 0.3), 
-            0 0 80px 30px var(--bg-color),
-            inset 0 0 50px rgba(255, 255, 255, 0.5);
-    }
-}
-
-/* スマホ用：画面からはみ出しすぎないよう目標サイズを小さく統一 */
-@media screen and (max-width: 768px) {
-    .bubble.expanding, .bubble.shrinking {
-        --final-diameter: 450px; 
-    }
+    0% { transform: translate(var(--move-x), var(--move-y)) scale(var(--target-scale)); background-color: var(--bg-color); opacity: 0.95; }
+    100% { transform: translate(0, 0) scale(1); background-color: initial; opacity: 1; }
 }
 
 /* ==========================================
-   6. コンテンツ表示エリア (最前面に固定)
+   7. コンテンツ表示エリア
    ========================================== */
 #content-area {
     position: fixed;
@@ -274,95 +218,84 @@ body.is-menu-open #layer-bg {
     transform: translate(-50%, -50%);
     width: 90%; max-width: 800px;
     text-align: center;
-    pointer-events: none;
+    pointer-events: none; /* 背景クリックを邪魔しない */
     opacity: 0;
     transition: opacity 0.6s ease-out;
-    
-    /* 拡大バブル(z-index: 1000)より必ず上にくるように設定 */
     z-index: 3000 !important;
 }
 
-#content-area.visible {
-    opacity: 1;
-    pointer-events: auto;
-}
+#content-area.visible { opacity: 1; }
 
-/* 文字の視認性確保 */
-#inner-content h1 {
-    color: white;
-    font-size: 3.5rem;
-    letter-spacing: 0.5rem;
-    margin-bottom: 20px;
-    text-shadow: 0 0 20px rgba(0, 0, 0, 0.5); /* 文字を浮かせる */
-}
+#inner-content { pointer-events: none; }
+#inner-content h1, #inner-content p { pointer-events: auto; }
 
-#inner-content p {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 1.2rem;
-    line-height: 1.8;
-    max-width: 600px;
-    margin: 0 auto;
-    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
+/* BACKボタンは非表示（背景クリックで戻るため） */
+.back-button { display: none !important; }
 
-.hidden { display: none !important; }
-
-.back-button {
-    margin-top: 50px;
-    background: transparent;
-    border: 1px solid white;
-    color: white;
-    padding: 12px 24px;
-    cursor: pointer;
-    font-family: 'Space Mono', monospace;
-    transition: all 0.3s;
-}
-.back-button:hover { background: rgba(255,255,255,0.2); letter-spacing: 2px; }
 
 /* ==========================================
-   7. スマホ向けレスポンシブ調整
-   ========================================== */
-@media screen and (max-width: 768px) {
-    #main-logo { width: 120px; }
-
-    .bubble {
-        --init-size: 140px !important; 
-        width: var(--init-size) !important;
-        height: var(--init-size) !important;
-    }
-
-    /* スマホ配置：重なり回避の再定義 */
-    .bubble.b1 { top: 12%; left: 10%; }
-    .bubble.b2 { top: 68%; left: 8%; }
-    .bubble.b3 { top: 14%; right: 10%; }
-    .bubble.b4 { top: 70%; right: 8%; }
-    .bubble.b5 { bottom: 8%; left: 50%; transform: translateX(-50%); }
-
-    .bubble.expanding, .bubble.shrinking { 
-        --target-scale: calc(100vw * 1.5 / var(--init-size)); 
-    }
-
-    #content-area h1 { font-size: 2.2rem !important; letter-spacing: 0.3rem !important; }
-    #content-area p { font-size: 1rem !important; padding: 0 10px; }
-}
-
-/* ==========================================
-   8. ロード画面レイヤー
+   8. ロード画面
    ========================================== */
 #layer-loading {
     display: flex; flex-direction: column; justify-content: center; align-items: center;
-    background: rgba(0, 0, 0, 0.9);
-    transition: opacity 1.5s ease;
+    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
+    z-index: 9999; transition: opacity 1.5s ease, visibility 1.5s;
 }
-body.is-ready #layer-loading { opacity: 0; pointer-events: none; }
 
-.loading-text { color: #fff; font-family: 'Space Mono', monospace; font-size: 1.2rem; letter-spacing: 0.5rem; margin-bottom: 20px; }
-.loading-bar-container { width: 200px; height: 1px; background: rgba(255, 255, 255, 0.3); overflow: hidden; }
-.loading-bar { width: 100%; height: 100%; background: #fff; transform: translateX(-100%); animation: loadMove 2s forwards linear; }
+body.is-ready #layer-loading { opacity: 0; visibility: hidden; pointer-events: none; }
 
-@keyframes loadMove { to { transform: translateX(0); } }
+.loading-text { 
+    color: #fff; font-family: 'Space Mono', monospace; font-size: 1.4rem; letter-spacing: 0.8rem; margin-bottom: 30px; 
+    filter: url(#corona-filter); text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.4);
+    animation: loading-glow 3s infinite ease-in-out;
+}
 
-/* ノイズ */
-.noise-layer { position: absolute; inset: 0; pointer-events: none; opacity: 0; z-index: -1; }
-.grain { background-image: url("https://upload.wikimedia.org/wikipedia/commons/7/76/1k_Grain.png"); }
-.static { background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJuIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC44NSIgbnVtT2N0YXZlcz0iNCIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNuKSIgb3BhY2l0eT0iMC4yIi8+PC9zdmc+'); }
+.loading-bar-container { width: 250px; height: 2px; background: rgba(255, 255, 255, 0.1); overflow: visible; }
+.loading-bar { 
+    width: 100%; height: 100%; background: #fff; transform: scaleX(0); transform-origin: left; 
+    animation: loadAccumulate 2.5s forwards cubic-bezier(0.42, 0, 0.58, 1);
+    filter: url(#corona-filter); box-shadow: 0 0 15px 2px rgba(255, 255, 255, 0.7), 0 0 30px 5px rgba(255, 255, 255, 0.3);
+}
+
+@keyframes loadAccumulate { 0% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
+@keyframes loading-glow {
+    0%, 100% { opacity: 0.7; transform: scale(0.98); }
+    50% { opacity: 1; transform: scale(1.02); }
+}
+
+/* ==========================================
+   9. SNS用サブバブル
+   ========================================== */
+.sub-bubble-container {
+    position: fixed; bottom: 2%; left: 50%; transform: translateX(-50%);
+    display: flex; justify-content: center; align-items: center; gap: 20px; z-index: 15;
+}
+
+.sub-bubble {
+    width: 45px; height: 45px; border-radius: 50% !important; display: flex; justify-content: center; align-items: center; text-decoration: none;
+    color: rgba(255, 255, 255, 0.9); font-family: 'Space Mono', monospace; font-size: 0.55rem; font-weight: bold;
+    filter: url(#corona-filter); background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(4px); box-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
+    transition: transform 0.3s ease, opacity 0.8s ease, background 0.3s; opacity: 0;
+}
+
+body.is-ready .sub-bubble { opacity: 1; }
+.sub-bubble:hover { transform: translateY(-5px) scale(1.1); background: rgba(255, 255, 255, 0.6); color: #000; }
+
+body.is-menu-open .sub-bubble-container,
+body.is-switching .sub-bubble-container { opacity: 0 !important; pointer-events: none; }
+
+/* ==========================================
+   10. レスポンシブ調整 (スマホ)
+   ========================================== */
+@media screen and (max-width: 768px) {
+    #main-logo { top: 58%; width: 130px; }
+    .bubble { --init-size: 105px !important; width: var(--init-size) !important; height: var(--init-size) !important; font-size: 0.6rem; }
+
+    .bubble.b5 { top: 8%; } 
+    .bubble.b1 { top: 20%; left: 10%; } /* MUSIC スマホ調整 */
+    .bubble.b2 { top: 22%; right: 2%; } 
+    .bubble.b3 { bottom: 18%; left: 5%; }
+    .bubble.b4 { bottom: 18%; right: 5%; }
+
+    #content-area h1 { font-size: 2.2rem !important; }
+}

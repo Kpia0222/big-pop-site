@@ -196,3 +196,15 @@ function updateLines() {
     }
     requestAnimationFrame(updateLines);
 }
+
+/* popBubble関数内のバブル以外を消す処理に追記 */
+document.querySelectorAll('.sub-bubble').forEach(s => {
+    s.style.opacity = '0';
+    s.style.pointerEvents = 'none';
+});
+
+/* backToEntrance関数内の要素を戻す処理に追記 */
+document.querySelectorAll('.sub-bubble').forEach(s => {
+    s.style.opacity = '1';
+    s.style.pointerEvents = 'auto';
+});
