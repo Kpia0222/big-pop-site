@@ -255,11 +255,46 @@ body.is-ready .bubble {
 }
 
 /* 特大バブルの配置（重なりを考慮したダイナミックな配置） */
-.b1 { width: 280px; height: 280px; top: -2%;  left: -2%; }  /* 左上：画面からはみ出すくらい */
-.b2 { width: 200px; height: 200px; top: 65%;  left: 5%; }   /* 左下 */
-.b3 { width: 240px; height: 240px; top: 5%;   right: -3%; } /* 右上：画面からはみ出すくらい */
-.b4 { width: 160px; height: 160px; top: 55%;  right: 5%; }  /* 右下 */
-.b5 { width: 220px; height: 220px; bottom: 2%; left: 38%; }  /* 中央下 */
+.b1 {
+    width: 280px;
+    height: 280px;
+    top: -2%;
+    left: -2%;
+}
+
+/* 左上：画面からはみ出すくらい */
+.b2 {
+    width: 200px;
+    height: 200px;
+    top: 65%;
+    left: 5%;
+}
+
+/* 左下 */
+.b3 {
+    width: 240px;
+    height: 240px;
+    top: 5%;
+    right: -3%;
+}
+
+/* 右上：画面からはみ出すくらい */
+.b4 {
+    width: 160px;
+    height: 160px;
+    top: 55%;
+    right: 5%;
+}
+
+/* 右下 */
+.b5 {
+    width: 220px;
+    height: 220px;
+    bottom: 2%;
+    left: 38%;
+}
+
+/* 中央下 */
 
 /* 弾けるアニメーション */
 .bubble.popped {
@@ -274,8 +309,10 @@ body.is-ready .bubble {
         transform: scale(1);
         opacity: 1;
     }
+
     100% {
-        transform: scale(2.5); /* 一気に大きく広がって消える */
+        transform: scale(2.5);
+        /* 一気に大きく広がって消える */
         opacity: 0;
         filter: brightness(3) blur(10px);
     }
@@ -283,8 +320,85 @@ body.is-ready .bubble {
 
 /* 文字の強調 */
 .bubble span {
-    font-size: 1.5rem; /* さらに大きく */
-    letter-spacing: 0.2rem; /* 文字間隔を広げて高級感を */
-    font-weight: 900; /* 極太に */
-    text-shadow: 0 0 15px rgba(255, 255, 255, 0.4); /* 文字からも光が漏れているように */
+    font-size: 1.5rem;
+    /* さらに大きく */
+    letter-spacing: 0.2rem;
+    /* 文字間隔を広げて高級感を */
+    font-weight: 900;
+    /* 極太に */
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+    /* 文字からも光が漏れているように */
+}
+
+
+/* --- レスポンシブ対応：画面幅が 768px 以下の時（スマホ・タブレット） --- */
+@media screen and (max-width: 768px) {
+
+    /* 1. ロゴのサイズをスマホ用に調整 */
+    #main-logo {
+        width: 150px;
+    }
+
+    /* 2. 文字サイズを少し小さくして収まりを良くする */
+    .bubble span {
+        font-size: 0.9rem;
+        letter-spacing: 0.1rem;
+    }
+
+    /* 3. シャボン玉のサイズと位置をスマホの縦長画面用にリセット */
+    /* 全体的に重ならないよう、上下に散らします */
+    .b1 {
+        width: 140px;
+        height: 140px;
+        top: 5%;
+        left: 5%;
+    }
+
+    /* MUSIC */
+    .b2 {
+        width: 110px;
+        height: 110px;
+        top: 22%;
+        left: 60%;
+    }
+
+    /* MIX */
+    .b3 {
+        width: 130px;
+        height: 130px;
+        top: 60%;
+        right: 55%;
+    }
+
+    /* SING */
+    .b4 {
+        width: 100px;
+        height: 100px;
+        top: 75%;
+        right: 10%;
+    }
+
+    /* PLAY */
+    .b5 {
+        width: 120px;
+        height: 120px;
+        bottom: 5%;
+        left: 35%;
+    }
+
+    /* LIVE */
+
+    /* 4. 弾ける時の拡大率もスマホ用に調整 */
+    @keyframes bubble-pop {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        100% {
+            transform: scale(1.8);
+            opacity: 0;
+            filter: brightness(2) blur(5px);
+        }
+    }
 }
