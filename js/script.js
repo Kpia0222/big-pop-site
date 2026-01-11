@@ -58,23 +58,18 @@ function popBubble(element) {
 
     // --- E. メニューコンテンツの表示タイミング ---
     setTimeout(() => {
-        // 背景要素と他のバブル、SNSバブルを隠す
         const logo = document.getElementById('main-logo');
         const lineLayer = document.getElementById('bubble-lines');
         if (logo) logo.style.opacity = '0';
         if (lineLayer) lineLayer.style.opacity = '0';
 
+        // 他のメインバブルのみを隠す（サブバブルは維持）
         document.querySelectorAll('.bubble').forEach(b => {
             if (b !== element) {
                 b.style.opacity = '0';
                 b.style.visibility = 'hidden';
             }
         });
-
-        /*document.querySelectorAll('.sub-bubble').forEach(s => {
-            s.style.opacity = '0';
-            s.style.pointerEvents = 'none';
-        });*/
 
         // コンテンツ流し込み
         const area = document.getElementById('content-area');
@@ -93,10 +88,11 @@ function popBubble(element) {
 }
 
 /* ==========================================
-   3. 戻るボタンの処理 (BACKボタン専用)
+   3. 戻るボタンの処理 (BACKボタン & 背景クリック共通)
    ========================================== */
 function backToEntrance() {
-    if (isTransitioning || !lastPoppedBubble) return;
+    // 遷移中、または既にメニューが閉じている場合は何もしない
+    if (isTransitioning || !lastPoppedBubble || !document.body.classList.contains('is-menu-open')) return;
     
     isTransitioning = true;
     document.body.classList.add('is-switching');
@@ -108,12 +104,12 @@ function backToEntrance() {
     setTimeout(() => {
         area.classList.add('hidden');
 
-        // 縮小アニメーション
+        // 縮小アニメーション開始
         lastPoppedBubble.classList.remove('expanding');
         void lastPoppedBubble.offsetWidth; 
         lastPoppedBubble.classList.add('shrinking');
 
-        // ロゴ・他バブル・SNSバブルを再表示
+        // ロゴ・他バブルを再表示（少し遅らせてフェードイン）
         setTimeout(() => {
             const logo = document.getElementById('main-logo');
             const lineLayer = document.getElementById('bubble-lines');
@@ -124,14 +120,9 @@ function backToEntrance() {
                 b.style.visibility = 'visible';
                 b.style.opacity = '1';
             });
-
-            /*document.querySelectorAll('.sub-bubble').forEach(s => {
-                s.style.opacity = '1';
-                s.style.pointerEvents = 'auto';
-            });*/
         }, 300);
 
-        // 完了処理
+        // すべてのステートをリセット
         setTimeout(() => {
             const originalSpan = lastPoppedBubble.querySelector('span');
             if (originalSpan) {
@@ -147,10 +138,21 @@ function backToEntrance() {
 }
 
 /* ==========================================
+   3.5 背景クリック時の判定
+   ========================================== */
+function handleBgClick() {
+    // メニューが開いている時のみ、backToEntrance を実行する
+    if (document.body.classList.contains('is-menu-open')) {
+        backToEntrance();
+    }
+}
+
+/* ==========================================
    4. 線の描画ループ
    ========================================== */
 function updateLines() {
     const logo = document.getElementById('main-logo');
+    // メニューが開いているときは描画をスキップして負荷を軽減
     if (!logo || window.getComputedStyle(logo).opacity === "0" || document.body.classList.contains('is-menu-open')) {
         requestAnimationFrame(updateLines);
         return;

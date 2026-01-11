@@ -16,7 +16,7 @@
             <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" seed="1">
                 <animate attributeName="baseFrequency" dur="10s" values="0.015;0.025;0.015" repeatCount="indefinite" />
             </feTurbulence>
-            <feDisplacementMap in="SourceGraphic" scale="25" />
+            <feDisplacementMap in="SourceGraphic" scale="15" />
         </filter>
         <filter id="liquid-filter">
             <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" seed="1">
@@ -27,6 +27,8 @@
     </svg>
 
     <div id="layer-bg"></div>
+
+    <div id="layer-bg" onclick="handleBgClick()"></div>
 
     <div id="content-area" class="hidden">
         <div id="inner-content"></div>
@@ -53,11 +55,21 @@
         <div class="bubble b5" onclick="popBubble(this)"><span>LIVE</span></div>
 
         <div class="sub-bubble-container">
-            <a href="https://www.youtube.com/@popKpia" target="_blank" class="sub-bubble s1"><span>YT</span></a>
-            <a href="https://x.com/takt_min" target="_blank" class="sub-bubble s2"><span>X</span></a>
-            <a href="https://www.nicovideo.jp/user/141136171" target="_blank" class="sub-bubble s3"><span>NN</span></a>
-            <a href="https://www.instagram.com/popkpia/" target="_blank" class="sub-bubble s4"><span>IG</span></a>
-            <a href="https://www.tiktok.com/@popkpia" target="_blank" class="sub-bubble s5"><span>TK</span></a>
+            <a href="https://www.youtube.com/@popKpia" target="_blank" class="sub-bubble s1">
+                <img src="images/icon_youtube.png" alt="YouTube">
+            </a>
+            <a href="https://x.com/takt_min" target="_blank" class="sub-bubble s2">
+                <img src="images/icon_x.png" alt="X">
+            </a>
+            <a href="https://www.nicovideo.jp/user/141136171" target="_blank" class="sub-bubble s3">
+                <img src="images/icon_niconico.png" alt="Niconico">
+            </a>
+            <a href="https://www.instagram.com/popkpia/" target="_blank" class="sub-bubble s4">
+                <img src="images/icon_instagram.png" alt="Instagram">
+            </a>
+            <a href="https://www.tiktok.com/@popkpia" target="_blank" class="sub-bubble s5">
+                <img src="images/icon_tiktok.png" alt="TikTok">
+            </a>
         </div>
     </div>
 

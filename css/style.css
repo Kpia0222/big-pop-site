@@ -47,6 +47,7 @@ body, html {
     background-position: center;
     background-color: rgba(0, 0, 0, 0.04);
     background-blend-mode: darken;
+    pointer-events: auto; /* これがないとクリックを透過してしまいます */
 }
 
 /* メニュー展開時の背景演出（暗く・ぼかす） */
@@ -114,13 +115,14 @@ body.is-ready #layer-entrance {
 /* ==========================================
    5. バブル・ギミック共通設定
    ========================================== */
+
+/* つなぎ線（背景） */
 #bubble-lines {
     position: fixed;
     inset: 0;
     pointer-events: none !important;
     overflow: visible;
 }
-
 #bubble-lines path {
     fill: none !important;
     stroke-width: 3;
@@ -129,36 +131,55 @@ body.is-ready #layer-entrance {
     transition: opacity 0.5s ease;
 }
 
+/* メインバブル基本設定 */
 .bubble {
     position: absolute;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    /* バブル単体はクリック可能にする */
     pointer-events: auto !important; 
     user-select: none;
     opacity: 0;
     color: white;
     font-family: 'Space Mono', monospace;
     font-weight: bold;
-    font-size: 0.8rem;
+    font-size: 2rem;
     text-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(2px);
     border-radius: 50% !important;
     overflow: hidden;
     transform-origin: center center;
     filter: url(#corona-filter);
-    transition: transform 1s, opacity 1s, filter 1s, visibility 1.5s;
-    /* 浮遊アニメーションとコロナパルス */
-    animation: 
-        float-bubble 15s infinite ease-in-out, 
-        corona-pulse 4s infinite ease-in-out alternate;
+    
+    /* 遷移アニメーション設定 */
+    transition: transform 0.5s cubic-bezier(0.2, 0, 0.2, 1), 
+                opacity 1s, 
+                filter 0.5s, 
+                visibility 1.5s, 
+                box-shadow 0.5s;
+    
+    /* 常時アニメーション：浮遊 & パルス */
+    animation: float-bubble 15s infinite ease-in-out, 
+               corona-pulse 4s infinite ease-in-out alternate;
 }
 
-body.is-ready .bubble { opacity: 1; }
+/* ホバー時の強調演出 */
+.bubble:hover {
+    animation-play-state: paused;
+    transform: scale(1.1) translateY(-10px) !important;
+    filter: url(#corona-filter) brightness(1);
+    z-index: 10;
+    box-shadow: 0 0 60px 20px rgba(255, 255, 255, 0.4), 
+                0 0 100px 40px var(--bg-color), 
+                inset 0 0 40px rgba(255, 255, 255, 0.6);
+}
+.bubble:hover span {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 1);
+}
 
-/* 遷移中やメニュー展開時は他のバブルをクリックできないようにする */
+/* 状態管理（表示・操作制限） */
+body.is-ready .bubble { opacity: 1; }
 body.is-switching .bubble,
 body.is-menu-open .bubble {
     pointer-events: none !important;
@@ -169,23 +190,26 @@ body.is-menu-open .bubble {
     transition: opacity 0.5s ease;
 }
 
-/* 浮遊: ゆっくりと斜めに動かす */
+/* アニメーション定義 */
 @keyframes float-bubble {
     0%, 100% { transform: translate(0, 0) rotate(0deg); }
     50% { transform: translate(-10px, -20px) rotate(-1deg); }
 }
 
-/* コロナ効果: 外側の発光と内側の影をアニメーション */
 @keyframes corona-pulse {
     0% {
-        box-shadow: 0 0 30px 5px rgba(255, 255, 255, 0.2), 0 0 50px 15px var(--bg-color), inset 0 0 30px rgba(255, 255, 255, 0.4);
+        box-shadow: 0 0 30px 5px rgba(255, 255, 255, 0.2), 
+                    0 0 50px 15px var(--bg-color), 
+                    inset 0 0 30px rgba(255, 255, 255, 0.4);
     }
     100% {
-        box-shadow: 0 0 50px 15px rgba(255, 255, 255, 0.3), 0 0 80px 30px var(--bg-color), inset 0 0 50px rgba(255, 255, 255, 0.5);
+        box-shadow: 0 0 50px 15px rgba(255, 255, 255, 0.3), 
+                    0 0 80px 30px var(--bg-color), 
+                    inset 0 0 50px rgba(255, 255, 255, 0.5);
     }
 }
 
-/* 個別配置：PC基準の絶対座標とテーマカラーの設定 */
+/* 個別配置：サイズ・位置・テーマカラー */
 .bubble.b5 { --init-size: 200px; --bg-color: #9933ff; width: var(--init-size); height: var(--init-size); top: 8%; left: 50%; transform: translateX(-50%); background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(170, 205, 150, 0.5)); }
 .bubble.b1 { --init-size: 260px; --bg-color: #ffcc00; width: var(--init-size); height: var(--init-size); top: 12%; left: 14%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(220, 130, 130, 0.5)); }
 .bubble.b2 { --init-size: 190px; --bg-color: #ff3366; width: var(--init-size); height: var(--init-size); top: 15%; right: 8%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(220, 205, 140, 0.5)); }
@@ -311,11 +335,34 @@ body.is-ready #layer-loading { opacity: 0; visibility: hidden; pointer-events: n
     pointer-events: auto !important; /* 常に反応させるための設定 */
 }
 
+/* サブバブル（画像用）の調整 */
 .sub-bubble {
-    width: 45px; height: 45px; border-radius: 50% !important; display: flex; justify-content: center; align-items: center; text-decoration: none;
-    color: rgba(255, 255, 255, 0.9); font-family: 'Space Mono', monospace; font-size: 0.55rem; font-weight: bold;
-    filter: url(#corona-filter); background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(4px);
-    transition: transform 0.3s ease, opacity 0.8s ease; opacity: 0;
+    width: 45px;
+    height: 45px;
+    border-radius: 50% !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* 画像が円からはみ出さないように */
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(4px);
+    transition: all 0.3s ease;
+    
+}
+
+.sub-bubble img {
+    width: 65%;   /* 円に対して少し小さめに配置すると綺麗です */
+    height: 65%;
+    object-fit: contain; /* 画像のアスペクト比を維持 */
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.2)); /* 視認性アップ */
+    /*filter: url(#corona-filter) drop-shadow(0 0 2px rgba(0,0,0,0.2));*/
+    animation: icon-shake 0.2s infinite alternate;
+}
+
+/* ホバー時に画像を少し大きく強調 */
+.sub-bubble:hover img {
+    transform: scale(1.1);
+    filter: brightness(1.2);
 }
 
 body.is-ready .sub-bubble { opacity: 1; }
@@ -351,7 +398,7 @@ body.is-menu-open .sub-bubble {
 
     /* --- サブバブル（SNS）のスマホ専用配置 --- */
     .sub-bubble-container {
-        bottom: 15svh;
+        bottom: 18svh;
         width: 100%;              /* 横幅いっぱいに広げて中央揃えを確実に */
         left: 0;                  /* transformとの兼ね合いで調整 */
         transform: none;          /* left:0 + width:100% の時はtransform:translateXは不要 */
@@ -363,6 +410,5 @@ body.is-menu-open .sub-bubble {
     .sub-bubble {
         width: 40px;              /* スマホ用に少しだけサイズダウン */
         height: 40px;
-        font-size: 0.5rem;
     }
 }
