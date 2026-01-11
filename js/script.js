@@ -2,7 +2,7 @@
  * script.js - Central Movement & Label Toggle
  */
 
-let isTransitioning = false; 
+let isTransitioning = false;
 let lastPoppedBubble = null;
 let time = 0;
 
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function popBubble(element) {
     // 遷移中やメニュー展開中は反応させない
     if (isTransitioning || document.body.classList.contains('is-menu-open')) return;
-    
+
     isTransitioning = true;
     document.body.classList.add('is-switching');
     lastPoppedBubble = element;
@@ -44,17 +44,21 @@ function popBubble(element) {
     // C. コンテンツの準備
     const labelText = originalSpan ? originalSpan.innerText.trim().toUpperCase() : "";
     const pageData = {
-        'MUSIC': { title: 'MUSIC', desc: 'Exploring new soundscapes. Listen to my latest tracks.' },
-        'MIX':   { title: 'MIX',   desc: 'Non-stop sonic journeys. Special curated compilations.' },
-        'SING':  { title: 'SING',  desc: 'Vocal expressions. Collection of singing works.' },
-        'PLAY':  { title: 'PLAY',  desc: 'Visuals and interactive works. Experience the performance.' },
-        'LIVE':  { title: 'LIVE',  desc: 'Connect in real-time. Check upcoming schedules.' }
+        'MUSIC': {
+            title: 'MUSIC',
+            desc: 'Exploring new soundscapes. Listen to my latest tracks.',
+            videoIds: ['IgpBulthSic'] // 動画IDを追加
+        },
+        'MIX': { title: 'MIX', desc: 'Non-stop sonic journeys. Special curated compilations.' },
+        'SING': { title: 'SING', desc: 'Vocal expressions. Collection of singing works.' },
+        'PLAY': { title: 'PLAY', desc: 'Visuals and interactive works. Experience the performance.' },
+        'LIVE': { title: 'LIVE', desc: 'Connect in real-time. Check upcoming schedules.' }
     };
     const data = pageData[labelText] || { title: labelText, desc: "Coming Soon..." };
 
     // D. 拡大アニメーション開始
     const bgColor = getComputedStyle(element).getPropertyValue('--bg-color');
-    element.style.backgroundColor = bgColor; 
+    element.style.backgroundColor = bgColor;
     element.classList.add('expanding');
 
     // E. 画面遷移の演出
@@ -75,17 +79,38 @@ function popBubble(element) {
         // テキストを表示
         const area = document.getElementById('content-area');
         const inner = document.getElementById('inner-content');
-        inner.innerHTML = `<h1>${data.title}</h1><p>${data.desc}</p>`;
-        
+
+        let videoHTML = '';
+        if (data.videoIds && data.videoIds.length > 0) {
+            videoHTML = `
+             <div class="video-container">
+                <iframe 
+                    src="https://www.youtube.com/embed/${data.videoIds[0]}?autoplay=1&mute=0&modestbranding=1" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+             </div>
+         `;
+        }
+
+        inner.innerHTML = `
+         <div class="content-wrapper">
+            <h1 class="content-title">${data.title}</h1>
+            ${videoHTML}
+            <p class="content-desc">${data.desc}</p>
+         </div>
+        `;
+
         area.classList.remove('hidden');
-        
+
         setTimeout(() => {
             area.classList.add('visible');
             document.body.classList.add('is-menu-open');
             document.body.classList.remove('is-switching');
             isTransitioning = false;
         }, 200);
-    }, 600); 
+    }, 600);
 }
 
 /* ==========================================
@@ -94,7 +119,7 @@ function popBubble(element) {
 function backToEntrance() {
     // 遷移中、バブル未選択、またはメニューが閉じていれば何もしない
     if (isTransitioning || !lastPoppedBubble || !document.body.classList.contains('is-menu-open')) return;
-    
+
     isTransitioning = true;
     document.body.classList.add('is-switching');
     document.body.classList.remove('is-menu-open');
@@ -127,13 +152,13 @@ function backToEntrance() {
         setTimeout(() => {
             const originalSpan = lastPoppedBubble.querySelector('span');
             if (originalSpan) originalSpan.style.opacity = '1';
-            
+
             lastPoppedBubble.classList.remove('shrinking');
-            lastPoppedBubble.style.backgroundColor = ''; 
+            lastPoppedBubble.style.backgroundColor = '';
             lastPoppedBubble = null;
             document.body.classList.remove('is-switching');
             isTransitioning = false;
-        }, 1200); 
+        }, 1200);
     }, 400);
 }
 
@@ -191,17 +216,17 @@ function updateLines() {
 
             path.setAttribute('d', `M ${startX} ${startY} Q ${cpX} ${cpY}, ${endX} ${endY}`);
             path.setAttribute('stroke', colors[`b${i}`]);
-            
+
             // --- 更新頻度の調整ポイント ---
             // 1. 小数点第2位までに丸めることで、微細すぎる変化での再描画を抑制
             const dynamicWidth = (2.5 + Math.sin(time * 2 + i) * 1.0).toFixed(2);
-            
+
             // 2. 前回の値と同じならスタイルを更新しない（DOM操作の削減）
             if (path.dataset.lastWidth !== dynamicWidth) {
                 path.style.strokeWidth = `${dynamicWidth}px`;
                 path.dataset.lastWidth = dynamicWidth;
             }
-            
+
             path.style.setProperty('--glow-color', colors[`b${i}`]);
             path.style.opacity = "0.6";
         } else {
