@@ -343,9 +343,26 @@ body.is-menu-open .sub-bubble {
     .bubble.b5 { top: 8%; } 
     .bubble.b1 { top: 20%; left: 10%; } 
     .bubble.b2 { top: 22%; right: 2%; } 
-    .bubble.b3 { bottom: 18%; left: 5%; }
-    .bubble.b4 { bottom: 18%; right: 5%; }
+    .bubble.b3 { bottom: 20%; left: 5%; }
+    .bubble.b4 { bottom: 20%; right: 5%; }
     
     /* コンテンツ表示のタイトルサイズを調整 */
     #inner-content h1 { font-size: 2.2rem !important; }
+
+    /* --- サブバブル（SNS）のスマホ専用配置 --- */
+    .sub-bubble-container {
+        bottom: 3svh;             /* 画面下端からの距離をsvhで微調整 */
+        width: 100%;              /* 横幅いっぱいに広げて中央揃えを確実に */
+        left: 0;                  /* transformとの兼ね合いで調整 */
+        transform: none;          /* left:0 + width:100% の時はtransform:translateXは不要 */
+        display: flex;
+        justify-content: center;  /* アイテムを中央に寄せる */
+        gap: 12px;                /* スマホでは間隔を少し狭めて見切れ防止 */
+    }
+
+    .sub-bubble {
+        width: 40px;              /* スマホ用に少しだけサイズダウン */
+        height: 40px;
+        font-size: 0.5rem;
+    }
 }
