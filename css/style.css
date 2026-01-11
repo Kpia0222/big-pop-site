@@ -1,42 +1,24 @@
 /* ==========================================
    1. 基本設定 & リセット
    ========================================== */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body, html {
     width: 100%;
-    /* svh: モバイルブラウザのツールバーを除いた正確な高さを取得 */
-    height: 100svh; 
+    height: 100svh; /* モバイル対応の高さ指定 */
     overflow: hidden;
     background-color: #000;
 }
 
-/* 共通レイヤー設定：画面全体を覆う基本定義 */
-#layer-bg,
-#layer-entrance,
-#layer-loading {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    transition: filter 1.5s ease;
-}
-
 /* ==========================================
    2. 各レイヤーの重なり (z-index)
-   ------------------------------------------
-   重要: 重なり順を変更する場合はここを一括調整
-   背景(1) < 線(2) < ロゴ・バブル(5) < ロード(100) < コンテンツ(2000) < SNS(4000)
    ========================================== */
-#layer-bg       { z-index: 1; }
-#bubble-lines   { z-index: 2; }
-#layer-entrance { z-index: 5; }
-#layer-loading  { z-index: 100; }
-#content-area   { z-index: 2000; }
+#layer-bg       { z-index: 1; position: fixed; inset: 0; }
+#bubble-lines   { z-index: 2; position: fixed; inset: 0; }
+#layer-entrance { z-index: 5; position: fixed; inset: 0; }
+#layer-loading  { z-index: 10000; position: fixed; inset: 0; }
+#content-area   { z-index: 2000; position: fixed; }
+.sub-bubble-container { z-index: 4000; position: fixed; }
 
 /* ==========================================
    3. 背景レイヤー
@@ -47,169 +29,124 @@ body, html {
     background-position: center;
     background-color: rgba(0, 0, 0, 0.04);
     background-blend-mode: darken;
-    pointer-events: auto; /* これがないとクリックを透過してしまいます */
+    pointer-events: auto; /* クリックを検知するために必須 */
+    transition: filter 1.5s ease;
 }
 
-/* メニュー展開時の背景演出（暗く・ぼかす） */
-body.is-menu-open #layer-bg {
-    filter: brightness(0.4) blur(5px);
-}
+/* メニュー展開時は暗くぼかす */
+body.is-menu-open #layer-bg { filter: brightness(0.4) blur(5px); }
 
 /* ==========================================
-   4. エントランス & 中央ロゴ (コロナエフェクト)
+   4. ロゴバブル (中央)
    ========================================== */
 #layer-entrance {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    transform: scale(0.9);
+    display: flex; justify-content: center; align-items: center;
+    opacity: 0; transform: scale(0.9);
     transition: opacity 2s ease, transform 2s cubic-bezier(0.2, 0, 0.2, 1);
-    /* 初期状態では前面にあるこのレイヤーが下のクリックを邪魔しないようにする */
     pointer-events: none; 
 }
-
-body.is-ready #layer-entrance {
-    opacity: 1;
-    transform: scale(1);
-}
+body.is-ready #layer-entrance { opacity: 1; transform: scale(1); }
 
 #main-logo {
     position: absolute;
-    /* 見切れ調整ポイント: モバイルで見切れる場合はこのtop値を調整 */
-    top: 62%; 
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 200px;
-    height: auto;
+    top: 62%; left: 50%;
+    width: 200px; height: 200px;
+    
+    /* マージンで中央配置 (JSのtransformと競合させないため) */
+    margin-left: -100px;
+    margin-top: -100px;
+    
+    border-radius: 50%;
     z-index: 6;
     
-    /* 複数のSVGフィルタを適用 */
+    /* フィルタと影 */
     filter: url(#liquid-filter) url(#corona-filter);
+    box-shadow: 0 0 40px 10px rgba(255, 255, 255, 0.1), 0 0 80px 20px rgba(255, 255, 255, 0.05);
     
-    /* ロゴ周囲の発光（コロナ） */
-    box-shadow: 
-        0 0 40px 10px rgba(255, 255, 255, 0.1),
-        0 0 80px 20px rgba(255, 255, 255, 0.05);
-    border-radius: 50%;
+    /* アニメーション (揺らぎ・パルス) */
+    animation: liquid-look 0.8s ease-in-out infinite, logo-corona-pulse 4s infinite ease-in-out alternate;
     
-    /* ゆらぎとパルスの2種アニメーションを同時適用 */
-    animation: 
-        liquid-look 0.8s ease-in-out infinite,
-        logo-corona-pulse 4s infinite ease-in-out alternate;
-    transition: opacity 0.8s ease;
+    /* JSによるマウス追従を滑らかにする設定 */
+    transition: opacity 0.8s ease, transform 0.2s ease-out;
+    will-change: transform;
 }
 
-/* フィルタによる明るさのゆらぎ */
 @keyframes liquid-look {
     0%, 100% { filter: url(#liquid-filter) url(#corona-filter) brightness(1.05); }
     50% { filter: url(#liquid-filter) url(#corona-filter) brightness(1.15); }
 }
 
-/* ロゴの拡大縮小と発光の強弱 */
+/* ロゴ用パルス (※transformはJSに任せるため削除しました) */
 @keyframes logo-corona-pulse {
-    0% { box-shadow: 0 0 30px 5px rgba(255, 255, 255, 0.1); transform: translate(-50%, -50%) scale(1); }
-    100% { box-shadow: 0 0 60px 15px rgba(255, 255, 255, 0.2); transform: translate(-50%, -50%) scale(1.02); }
+    0% { box-shadow: 0 0 30px 5px rgba(255, 255, 255, 0.1); }
+    100% { box-shadow: 0 0 60px 15px rgba(255, 255, 255, 0.2); }
 }
 
 /* ==========================================
-   5. バブル・ギミック共通設定
+   5. メインバブル共通設定
    ========================================== */
-
-/* つなぎ線（背景） */
-#bubble-lines {
-    position: fixed;
-    inset: 0;
-    pointer-events: none !important;
-    overflow: visible;
-}
+#bubble-lines { overflow: visible; pointer-events: none !important; }
 #bubble-lines path {
     fill: none !important;
-    stroke-width: 3;
+    stroke-width: 1; /* 基本の太さ */
     stroke-linecap: round;
-    opacity: 0.5;
-    transition: opacity 0.5s ease;
+    opacity: 0.6;
+    transition: opacity 10s ease;
+    
+    /* フィルタで発光と少しのゆらぎを加える */
+    filter: drop-shadow(0 0 5px var(--glow-color, rgba(255,255,255,0.5))) url(#liquid-filter);
 }
 
-/* メインバブル基本設定 */
 .bubble {
-    position: absolute;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    pointer-events: auto !important; 
-    user-select: none;
-    opacity: 0;
-    color: white;
-    font-family: 'Space Mono', monospace;
-    font-weight: bold;
-    font-size: 2rem;
+    position: absolute; display: flex; justify-content: center; align-items: center;
+    cursor: pointer; pointer-events: auto !important; user-select: none;
+    opacity: 0; color: white;
+    font-family: 'Space Mono', monospace; font-weight: bold; font-size: 2rem;
     text-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(2px);
-    border-radius: 50% !important;
-    overflow: hidden;
+    backdrop-filter: blur(2px); border-radius: 50% !important; overflow: hidden;
     transform-origin: center center;
     filter: url(#corona-filter);
     
-    /* 遷移アニメーション設定 */
+    /* 構文エラー修正済み: カンマで区切って記述 */
     transition: transform 0.5s cubic-bezier(0.2, 0, 0.2, 1), 
                 opacity 1s, 
-                filter 0.5s, 
+                filter 0.3s, 
                 visibility 1.5s, 
-                box-shadow 0.5s;
+                box-shadow 0.3s;
     
-    /* 常時アニメーション：浮遊 & パルス */
-    animation: float-bubble 15s infinite ease-in-out, 
-               corona-pulse 4s infinite ease-in-out alternate;
+    animation: float-bubble 15s infinite ease-in-out, corona-pulse 4s infinite ease-in-out alternate;
 }
 
-/* ホバー時の強調演出 */
+/* ホバー時の強調 (サブバブルと同じ動きに統一) */
 .bubble:hover {
     animation-play-state: paused;
-    transform: scale(1.1) translateY(-10px) !important;
-    filter: url(#corona-filter) brightness(1);
+    /* transitionを上書きしてキビキビ動かす */
+    transition: transform 0.3s ease, filter 0.3s, box-shadow 0.3s;
+    transform: scale(1.1) translateY(-5px) !important;
+    filter: url(#corona-filter) brightness(1.3);
     z-index: 10;
-    box-shadow: 0 0 60px 20px rgba(255, 255, 255, 0.4), 
-                0 0 100px 40px var(--bg-color), 
-                inset 0 0 40px rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 50px 15px rgba(255, 255, 255, 0.4), 
+                0 0 80px 30px var(--bg-color), 
+                inset 0 0 30px rgba(255, 255, 255, 0.5);
 }
-.bubble:hover span {
-    text-shadow: 0 0 20px rgba(255, 255, 255, 1);
-}
+.bubble:hover span { text-shadow: 0 0 20px rgba(255, 255, 255, 1); }
 
-/* 状態管理（表示・操作制限） */
+/* 状態管理 */
 body.is-ready .bubble { opacity: 1; }
-body.is-switching .bubble,
-body.is-menu-open .bubble {
-    pointer-events: none !important;
-}
+body.is-switching .bubble, body.is-menu-open .bubble { pointer-events: none !important; }
+.bubble span { pointer-events: none; transition: opacity 0.5s ease; }
 
-.bubble span {
-    pointer-events: none;
-    transition: opacity 0.5s ease;
-}
-
-/* アニメーション定義 */
 @keyframes float-bubble {
     0%, 100% { transform: translate(0, 0) rotate(0deg); }
     50% { transform: translate(-10px, -20px) rotate(-1deg); }
 }
 
 @keyframes corona-pulse {
-    0% {
-        box-shadow: 0 0 30px 5px rgba(255, 255, 255, 0.2), 
-                    0 0 50px 15px var(--bg-color), 
-                    inset 0 0 30px rgba(255, 255, 255, 0.4);
-    }
-    100% {
-        box-shadow: 0 0 50px 15px rgba(255, 255, 255, 0.3), 
-                    0 0 80px 30px var(--bg-color), 
-                    inset 0 0 50px rgba(255, 255, 255, 0.5);
-    }
+    0% { box-shadow: 0 0 30px 5px rgba(255, 255, 255, 0.2), 0 0 50px 15px var(--bg-color), inset 0 0 30px rgba(255, 255, 255, 0.4); }
+    100% { box-shadow: 0 0 50px 15px rgba(255, 255, 255, 0.3), 0 0 80px 30px var(--bg-color), inset 0 0 50px rgba(255, 255, 255, 0.5); }
 }
 
-/* 個別配置：サイズ・位置・テーマカラー */
+/* 個別配置 */
 .bubble.b5 { --init-size: 200px; --bg-color: #9933ff; width: var(--init-size); height: var(--init-size); top: 8%; left: 50%; transform: translateX(-50%); background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(170, 205, 150, 0.5)); }
 .bubble.b1 { --init-size: 260px; --bg-color: #ffcc00; width: var(--init-size); height: var(--init-size); top: 12%; left: 14%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(220, 130, 130, 0.5)); }
 .bubble.b2 { --init-size: 190px; --bg-color: #ff3366; width: var(--init-size); height: var(--init-size); top: 15%; right: 8%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(220, 205, 140, 0.5)); }
@@ -218,14 +155,12 @@ body.is-menu-open .bubble {
 
 /* ==========================================
    6. 遷移・拡大アニメーション
-   ------------------------------------------
-   バブルがクリックされた際の挙動を定義
    ========================================== */
 .bubble.expanding {
-    /* 拡大率の計算。jsから変数が渡される */
     --target-scale: calc(850px / var(--init-size));
     animation: bubble-to-center 1.2s forwards cubic-bezier(0.4, 0, 0.2, 1) !important;
     z-index: 1000 !important;
+    pointer-events: auto !important; /* 拡大後もクリック(背景へのクリック)を遮る */
 }
 
 .bubble.shrinking {
@@ -236,13 +171,7 @@ body.is-menu-open .bubble {
 
 @keyframes bubble-to-center {
     0% { transform: translate(0, 0) scale(1); }
-    100% { 
-        transform: translate(var(--move-x), var(--move-y)) scale(var(--target-scale)); 
-        background-color: var(--bg-color) !important;
-        opacity: 0.95;
-        /* 拡大時に少しぼかすことで「内側に入った」感を出す */
-        filter: url(#corona-filter) blur(2px); 
-    }
+    100% { transform: translate(var(--move-x), var(--move-y)) scale(var(--target-scale)); background-color: var(--bg-color) !important; opacity: 0.95; filter: url(#corona-filter) blur(2px); }
 }
 
 @keyframes bubble-from-center {
@@ -251,167 +180,69 @@ body.is-menu-open .bubble {
 }
 
 /* ==========================================
-   7. コンテンツ表示エリア (BACKボタン有効化)
-   ------------------------------------------
-   拡大したバブルの上に重なるテキストエリア
+   7. コンテンツ表示エリア
    ========================================== */
 #content-area {
-    position: fixed;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90%; max-width: 800px;
-    text-align: center;
-    pointer-events: none; /* 非表示時は下のバブルのクリックを邪魔しない */
-    opacity: 0;
-    transition: opacity 0.6s ease-out;
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 90%; max-width: 800px; text-align: center;
+    pointer-events: none; opacity: 0; transition: opacity 0.6s ease-out;
     z-index: 3000 !important;
 }
-
-#content-area.visible { 
-    opacity: 1;
-    pointer-events: auto; /* 表示されたら中のボタンなどをクリック可能に */
-}
-
+#content-area.visible { opacity: 1; pointer-events: auto; }
 #inner-content h1 { color: white; font-size: 3.5rem; letter-spacing: 0.5rem; margin-bottom: 20px; }
 #inner-content p { color: rgba(255, 255, 255, 0.9); font-size: 1.2rem; line-height: 1.8; margin-bottom: 30px; }
-
-.back-button { 
-    display: inline-block !important; 
-    background: transparent; 
-    border: 1px solid white; 
-    color: white; 
-    padding: 12px 24px; 
-    cursor: pointer; 
-    font-family: 'Space Mono', monospace; 
-    transition: all 0.3s;
-}
-
+.back-button { display: inline-block !important; background: transparent; border: 1px solid white; color: white; padding: 12px 24px; cursor: pointer; font-family: 'Space Mono', monospace; transition: all 0.3s; }
 .back-button:hover { background: rgba(255,255,255,0.2); letter-spacing: 2px; }
 
 /* ==========================================
-   8〜10. ロード・SNS・レスポンシブ
+   8. ロード画面 & SNSアイコン
    ========================================== */
 #layer-loading {
     display: flex; flex-direction: column; justify-content: center; align-items: center;
     background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
     z-index: 9999; transition: opacity 1.5s ease, visibility 1.5s;
 }
-
 body.is-ready #layer-loading { opacity: 0; visibility: hidden; pointer-events: none; }
 
-.loading-text { 
-    color: #fff; font-family: 'Space Mono', monospace; font-size: 1.4rem; letter-spacing: 0.8rem; margin-bottom: 30px; 
-    filter: url(#corona-filter); text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-    animation: loading-glow 3s infinite ease-in-out;
-}
-
-.loading-bar-container { width: 250px; height: 2px; background: rgba(255, 255, 255, 0.1); }
-.loading-bar { 
-    width: 100%; height: 100%; background: #fff; transform: scaleX(0); transform-origin: left; 
-    animation: loadAccumulate 2.5s forwards cubic-bezier(0.42, 0, 0.58, 1);
-    filter: url(#corona-filter);
-}
+.loading-text { color: #fff; font-family: 'Space Mono', monospace; font-size: 1.4rem; letter-spacing: 0.8rem; margin-bottom: 30px; filter: url(#corona-filter); text-shadow: 0 0 10px rgba(255, 255, 255, 0.8); animation: loading-glow 3s infinite ease-in-out; }
+.loading-bar-container { width: 285px; height: 2px; background: rgba(255, 255, 255, 0.1); }
+.loading-bar { width: 100%; height: 100%; background: #fff; transform: scaleX(0); transform-origin: left; animation: loadAccumulate 2.5s forwards cubic-bezier(0.42, 0, 0.58, 1); filter: url(#corona-filter); }
 
 @keyframes loadAccumulate { 0% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
-@keyframes loading-glow {
-    0%, 100% { opacity: 0.7; transform: scale(0.98); }
-    50% { opacity: 1; transform: scale(1.02); }
-}
+@keyframes loading-glow { 0%, 100% { opacity: 0.7; transform: scale(0.98); } 50% { opacity: 1; transform: scale(1.02); } }
 
-/* サブバブル（SNSアイコン）設定 */
+/* SNSアイコン (モノクロ設定) */
 .sub-bubble-container {
-    position: fixed; 
-    /* 見切れ調整ポイント: 下端に近すぎる場合はこのbottom値を大きくする */
-    bottom: 2%; 
-    left: 50%; 
-    transform: translateX(-50%);
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    gap: 20px; 
-    
-    /* コンテンツエリア(3000)よりも前面(4000)に配置 */
-    z-index: 4000;
-    pointer-events: auto !important; /* 常に反応させるための設定 */
+    position: fixed; bottom: 2%; left: 50%; transform: translateX(-50%);
+    display: flex; justify-content: center; align-items: center; gap: 20px;
+    z-index: 4000; pointer-events: auto !important;
 }
-
-/* サブバブル（画像用）の調整 */
 .sub-bubble {
-    width: 45px;
-    height: 45px;
-    border: 1px solid rgba(255, 255, 255, 0.3); /* 繊細な枠線を追加 */
-    border-radius: 50% !important;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden; /* 画像が円からはみ出さないように */
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(4px);
-    transition: all 0.3s ease;    
+    width: 45px; height: 45px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 50% !important;
+    display: flex; justify-content: center; align-items: center; overflow: hidden;
+    background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px); transition: all 0.3s ease;
 }
-
-/* サブバブル（SNSアイコン）のモノクロ設定 */
 .sub-bubble img {
-    width: 65%;
-    height: 65%;
-    object-fit: contain;
-    /* --- モノクロ化の設定 --- */
+    width: 65%; height: 65%; object-fit: contain;
     filter: grayscale(100%) brightness(1.2) drop-shadow(0 0 2px rgba(0,0,0,0.2));
-    opacity: 0.7; /* 少し透かすと背景に馴染みます */
-    transition: all 0.3s ease;
+    opacity: 0.7; transition: all 0.3s ease;
 }
-
-/* ホバー時に色を戻す、または強調する演出 */
-.sub-bubble:hover img {
-    filter: grayscale(0%) brightness(1.5) drop-shadow(0 0 5px rgba(255,255,255,0.5));
-    opacity: 1;
-    transform: scale(1.1);
-}
-
-body.is-ready .sub-bubble { opacity: 1; }
+.sub-bubble:hover img { filter: grayscale(0%) brightness(1.5) drop-shadow(0 0 5px rgba(255,255,255,0.5)); opacity: 1; transform: scale(1.1); }
 .sub-bubble:hover { transform: translateY(-5px) scale(1.1); background: rgba(255, 255, 255, 0.6); color: #000; }
-
-/* メニューが開いていても、サブバブルだけは常に表示・操作可能にする */
-body.is-menu-open .sub-bubble {
-    opacity: 1 !important;
-    pointer-events: auto !important;
-}
+body.is-menu-open .sub-bubble { opacity: 1 !important; pointer-events: auto !important; }
 
 /* ==========================================
-   10. レスポンシブ調整 (スマホ・タブレット)
-   ------------------------------------------
-   重要: 画面サイズによって要素が重なる場合はここで位置を上書き
+   9. レスポンシブ (スマホ用)
    ========================================== */
 @media screen and (max-width: 768px) {
-    /* ロゴの位置とサイズをスマホ用に調整 */
-    #main-logo { top: 58%; width: 130px; }
-    
-    /* バブルを一律小さくする */
+    #main-logo { top: 58%; width: 130px; margin-left: -65px; margin-top: -65px; }
     .bubble { --init-size: 105px !important; width: var(--init-size) !important; height: var(--init-size) !important; font-size: 0.6rem; }
-    
-    /* 下側のバブル(b3, b4)がSNSバブルと重ならないよう、bottom位置を上げる */
     .bubble.b5 { top: 8%; } 
     .bubble.b1 { top: 20%; left: 10%; } 
     .bubble.b2 { top: 22%; right: 2%; } 
     .bubble.b3 { bottom: 20%; left: 5%; }
     .bubble.b4 { bottom: 20%; right: 5%; }
-    
-    /* コンテンツ表示のタイトルサイズを調整 */
     #inner-content h1 { font-size: 2.2rem !important; }
-
-    /* --- サブバブル（SNS）のスマホ専用配置 --- */
-    .sub-bubble-container {
-        bottom: 18svh;
-        width: 100%;              /* 横幅いっぱいに広げて中央揃えを確実に */
-        left: 0;                  /* transformとの兼ね合いで調整 */
-        transform: none;          /* left:0 + width:100% の時はtransform:translateXは不要 */
-        display: flex;
-        justify-content: center;  /* アイテムを中央に寄せる */
-        gap: 12px;                /* スマホでは間隔を少し狭めて見切れ防止 */
-    }
-
-    .sub-bubble {
-        width: 40px;              /* スマホ用に少しだけサイズダウン */
-        height: 40px;
-    }
+    .sub-bubble-container { bottom: 18svh; width: 100%; left: 0; transform: none; gap: 12px; }
+    .sub-bubble { width: 40px; height: 40px; }
 }
