@@ -71,10 +71,10 @@ function popBubble(element) {
             }
         });
 
-        document.querySelectorAll('.sub-bubble').forEach(s => {
+        /*document.querySelectorAll('.sub-bubble').forEach(s => {
             s.style.opacity = '0';
             s.style.pointerEvents = 'none';
-        });
+        });*/
 
         // コンテンツ流し込み
         const area = document.getElementById('content-area');
@@ -125,10 +125,10 @@ function backToEntrance() {
                 b.style.opacity = '1';
             });
 
-            document.querySelectorAll('.sub-bubble').forEach(s => {
+            /*document.querySelectorAll('.sub-bubble').forEach(s => {
                 s.style.opacity = '1';
                 s.style.pointerEvents = 'auto';
-            });
+            });*/
         }, 300);
 
         // 完了処理

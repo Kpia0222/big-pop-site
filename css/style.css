@@ -7,50 +7,58 @@
     box-sizing: border-box;
 }
 
-body, html {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background-color: #000;
+:root {
+    /* 画面の高さ（ツールバーを除いた正確な数値） */
+    --vh: 1svh; 
 }
 
-/* 共通レイヤー設定 */
-#layer-bg,
-#layer-entrance,
-#layer-loading {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    transition: filter 1.5s ease;
+body, html {
+    width: 100%;
+    /* 100svh = モバイルブラウザのバーを除いた100%の高さ */
+    height: 100svh; 
+    overflow: hidden;
+    background-color: #000;
 }
 
 /* ==========================================
    2. 各レイヤーの重なり (z-index)
    ========================================== */
-#layer-bg       { z-index: 1; }
-#bubble-lines   { z-index: 2; }
-#layer-entrance { z-index: 5; }
-#layer-loading  { z-index: 100; }
-#content-area   { z-index: 2000; }
+/* 数字が大きいほど手前に表示されます */
+#layer-bg       { z-index: 1; }    /* 背景画像 */
+#bubble-lines   { z-index: 2; }    /* バブルを繋ぐ線 */
+#layer-entrance { z-index: 5; }    /* ロゴとバブルの層 */
+#layer-loading  { z-index: 100; }  /* ロード画面（最優先で見せる） */
+#content-area   { z-index: 2000; } /* ページ内容 */
+.sub-bubble-container { z-index: 4000; } /* SNSリンク（常に最前面） */
 
 /* ==========================================
-   3. 背景レイヤー
+   3. 背景・共通レイヤー設定
    ========================================== */
+#layer-bg,
+#layer-entrance,
+#layer-loading {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
 #layer-bg {
     background-image: url('../images/background_entrance_01.JPG');
     background-size: cover;
     background-position: center;
     background-color: rgba(0, 0, 0, 0.04);
     background-blend-mode: darken;
+    transition: filter 1.5s ease;
 }
 
+/* メニューが開いた時、背景を暗くボカす */
 body.is-menu-open #layer-bg {
     filter: brightness(0.4) blur(5px);
 }
 
 /* ==========================================
-   4. エントランス & 中央ロゴ (コロナエフェクト)
+   4. 中央ロゴ設定
    ========================================== */
 #layer-entrance {
     display: flex;
@@ -59,7 +67,7 @@ body.is-menu-open #layer-bg {
     opacity: 0;
     transform: scale(0.9);
     transition: opacity 2s ease, transform 2s cubic-bezier(0.2, 0, 0.2, 1);
-    pointer-events: none;
+    pointer-events: none; /* 下にあるバブルのクリックを邪魔しない */
 }
 
 body.is-ready #layer-entrance {
@@ -69,16 +77,14 @@ body.is-ready #layer-entrance {
 
 #main-logo {
     position: absolute;
-    top: 62%; 
+    /* 見切れ防止：画面中央から計算 */
+    top: 55%; 
     left: 50%;
     transform: translate(-50%, -50%);
     width: 200px;
+    max-width: 40vw; /* 画面の幅が狭い時にロゴがはみ出ないように制限 */
     height: auto;
-    z-index: 6;
     filter: url(#liquid-filter) url(#corona-filter);
-    box-shadow: 
-        0 0 40px 10px rgba(255, 255, 255, 0.1),
-        0 0 80px 20px rgba(255, 255, 255, 0.05);
     border-radius: 50%;
     animation: 
         liquid-look 0.8s ease-in-out infinite,
@@ -86,52 +92,33 @@ body.is-ready #layer-entrance {
     transition: opacity 0.8s ease;
 }
 
+/* ロゴのアニメーション：うねりと拍動 */
 @keyframes liquid-look {
     0%, 100% { filter: url(#liquid-filter) url(#corona-filter) brightness(1.05); }
     50% { filter: url(#liquid-filter) url(#corona-filter) brightness(1.15); }
 }
-
 @keyframes logo-corona-pulse {
     0% { box-shadow: 0 0 30px 5px rgba(255, 255, 255, 0.1); transform: translate(-50%, -50%) scale(1); }
     100% { box-shadow: 0 0 60px 15px rgba(255, 255, 255, 0.2); transform: translate(-50%, -50%) scale(1.02); }
 }
 
 /* ==========================================
-   5. バブル・ギミック共通設定
+   5. メインバブル設定
    ========================================== */
-#bubble-lines {
-    position: fixed;
-    inset: 0;
-    pointer-events: none !important;
-    overflow: visible;
-}
-
-#bubble-lines path {
-    fill: none !important;
-    stroke-width: 3;
-    stroke-linecap: round;
-    opacity: 0.5;
-    transition: opacity 0.5s ease;
-}
-
 .bubble {
     position: absolute;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    pointer-events: auto !important;
+    pointer-events: auto !important; /* 常にクリック可能にする */
     user-select: none;
     opacity: 0;
     color: white;
     font-family: 'Space Mono', monospace;
     font-weight: bold;
-    font-size: 0.8rem;
-    text-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(2px);
     border-radius: 50% !important;
-    overflow: hidden;
-    transform-origin: center center;
     filter: url(#corona-filter);
     transition: transform 1s, opacity 1s, filter 1s, visibility 1.5s;
     animation: 
@@ -141,89 +128,42 @@ body.is-ready #layer-entrance {
 
 body.is-ready .bubble { opacity: 1; }
 
+/* ページ切り替え中やメニュー表示中は、バブルのクリックを無効化 */
 body.is-switching .bubble,
 body.is-menu-open .bubble {
     pointer-events: none !important;
 }
 
-.bubble span {
-    pointer-events: none;
-    transition: opacity 0.5s ease;
-}
-
-@keyframes float-bubble {
-    0%, 100% { transform: translate(0, 0) rotate(0deg); }
-    50% { transform: translate(-10px, -20px) rotate(-1deg); }
-}
-
-@keyframes corona-pulse {
-    0% {
-        box-shadow: 0 0 30px 5px rgba(255, 255, 255, 0.2), 0 0 50px 15px var(--bg-color), inset 0 0 30px rgba(255, 255, 255, 0.4);
-    }
-    100% {
-        box-shadow: 0 0 50px 15px rgba(255, 255, 255, 0.3), 0 0 80px 30px var(--bg-color), inset 0 0 50px rgba(255, 255, 255, 0.5);
-    }
-}
-
-/* 個別配置 */
-.bubble.b5 { --init-size: 200px; --bg-color: #9933ff; width: var(--init-size); height: var(--init-size); top: 8%; left: 50%; transform: translateX(-50%); background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(170, 205, 150, 0.5)); }
-.bubble.b1 { --init-size: 260px; --bg-color: #ffcc00; width: var(--init-size); height: var(--init-size); top: 12%; left: 14%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(220, 130, 130, 0.5)); }
-.bubble.b2 { --init-size: 190px; --bg-color: #ff3366; width: var(--init-size); height: var(--init-size); top: 15%; right: 8%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(220, 205, 140, 0.5)); }
-.bubble.b3 { --init-size: 230px; --bg-color: #00ffcc; width: var(--init-size); height: var(--init-size); bottom: 12%; left: 10%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(150, 180, 225, 0.5)); }
-.bubble.b4 { --init-size: 170px; --bg-color: #3366ff; width: var(--init-size); height: var(--init-size); bottom: 15%; right: 10%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(180, 150, 225, 0.5)); }
+/* --- 個別配置 (PC用) --- */
+/* top/bottomを画面の端からではなく、少し内側に設定して見切れを防止 */
+.bubble.b5 { --init-size: 180px; --bg-color: #9933ff; width: var(--init-size); height: var(--init-size); top: 10svh; left: 50%; transform: translateX(-50%); background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(170, 205, 150, 0.5)); }
+.bubble.b1 { --init-size: 240px; --bg-color: #ffcc00; width: var(--init-size); height: var(--init-size); top: 15svh; left: 15%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(220, 130, 130, 0.5)); }
+.bubble.b2 { --init-size: 180px; --bg-color: #ff3366; width: var(--init-size); height: var(--init-size); top: 20svh; right: 10%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(220, 205, 140, 0.5)); }
+.bubble.b3 { --init-size: 220px; --bg-color: #00ffcc; width: var(--init-size); height: var(--init-size); bottom: 15svh; left: 12%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(150, 180, 225, 0.5)); }
+.bubble.b4 { --init-size: 160px; --bg-color: #3366ff; width: var(--init-size); height: var(--init-size); bottom: 18svh; right: 12%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(180, 150, 225, 0.5)); }
 
 /* ==========================================
-   6. 遷移・拡大アニメーション
-   ========================================== */
-.bubble.expanding {
-    --target-scale: calc(850px / var(--init-size));
-    animation: bubble-to-center 1.2s forwards cubic-bezier(0.4, 0, 0.2, 1) !important;
-    z-index: 1000 !important;
-}
-
-.bubble.shrinking {
-    --target-scale: calc(850px / var(--init-size));
-    animation: bubble-from-center 1.2s forwards cubic-bezier(0.4, 0, 0.2, 1) !important;
-    z-index: 1000 !important;
-}
-
-@keyframes bubble-to-center {
-    0% { transform: translate(0, 0) scale(1); }
-    100% { 
-        transform: translate(var(--move-x), var(--move-y)) scale(var(--target-scale)); 
-        background-color: var(--bg-color) !important;
-        opacity: 0.95;
-        filter: url(#corona-filter) blur(2px);
-    }
-}
-
-@keyframes bubble-from-center {
-    0% { transform: translate(var(--move-x), var(--move-y)) scale(var(--target-scale)); background-color: var(--bg-color); opacity: 0.95; }
-    100% { transform: translate(0, 0) scale(1); background-color: initial; opacity: 1; }
-}
-
-/* ==========================================
-   7. コンテンツ表示エリア (BACKボタン有効化)
+   6. ページ内容 (Content Area)
    ========================================== */
 #content-area {
     position: fixed;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    width: 90%; max-width: 800px;
+    width: 90%; 
+    max-width: 800px;
+    /* スマホで文字が溢れないように、中身だけスクロール可能にする */
+    max-height: 80svh;
+    overflow-y: auto;
     text-align: center;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.6s ease-out;
-    z-index: 3000 !important;
 }
 
 #content-area.visible { 
     opacity: 1;
-    pointer-events: auto; /* ボタンをクリック可能にする */
+    pointer-events: auto; /* ボタンやテキストを触れるようにする */
 }
-
-#inner-content h1 { color: white; font-size: 3.5rem; letter-spacing: 0.5rem; margin-bottom: 20px; }
-#inner-content p { color: rgba(255, 255, 255, 0.9); font-size: 1.2rem; line-height: 1.8; margin-bottom: 30px; }
 
 .back-button { 
     display: inline-block !important; 
@@ -231,65 +171,68 @@ body.is-menu-open .bubble {
     border: 1px solid white; 
     color: white; 
     padding: 12px 24px; 
+    margin-top: 20px;
     cursor: pointer; 
     font-family: 'Space Mono', monospace; 
-    transition: all 0.3s;
+    transition: 0.3s;
 }
-
-.back-button:hover { background: rgba(255,255,255,0.2); letter-spacing: 2px; }
 
 /* ==========================================
-   8〜10. ロード・SNS・レスポンシブ (省略なし)
+   7. SNSリンク (Sub Bubbles)
    ========================================== */
-#layer-loading {
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
-    z-index: 9999; transition: opacity 1.5s ease, visibility 1.5s;
-}
-
-body.is-ready #layer-loading { opacity: 0; visibility: hidden; pointer-events: none; }
-
-.loading-text { 
-    color: #fff; font-family: 'Space Mono', monospace; font-size: 1.4rem; letter-spacing: 0.8rem; margin-bottom: 30px; 
-    filter: url(#corona-filter); text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-    animation: loading-glow 3s infinite ease-in-out;
-}
-
-.loading-bar-container { width: 250px; height: 2px; background: rgba(255, 255, 255, 0.1); }
-.loading-bar { 
-    width: 100%; height: 100%; background: #fff; transform: scaleX(0); transform-origin: left; 
-    animation: loadAccumulate 2.5s forwards cubic-bezier(0.42, 0, 0.58, 1);
-    filter: url(#corona-filter);
-}
-
-@keyframes loadAccumulate { 0% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
-@keyframes loading-glow {
-    0%, 100% { opacity: 0.7; transform: scale(0.98); }
-    50% { opacity: 1; transform: scale(1.02); }
-}
-
 .sub-bubble-container {
-    position: fixed; bottom: 2%; left: 50%; transform: translateX(-50%);
-    display: flex; justify-content: center; align-items: center; gap: 20px; z-index: 15;
+    position: fixed; 
+    bottom: 3svh; /* 画面下部から3%の位置に固定 */
+    left: 50%; 
+    transform: translateX(-50%);
+    display: flex; 
+    gap: 15px;
+    pointer-events: auto !important; /* 常に反応するように強制 */
 }
 
 .sub-bubble {
-    width: 45px; height: 45px; border-radius: 50% !important; display: flex; justify-content: center; align-items: center; text-decoration: none;
-    color: rgba(255, 255, 255, 0.9); font-family: 'Space Mono', monospace; font-size: 0.55rem; font-weight: bold;
-    filter: url(#corona-filter); background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(4px);
-    transition: transform 0.3s ease, opacity 0.8s ease; opacity: 0;
+    width: 45px; height: 45px; 
+    border-radius: 50%;
+    display: flex; justify-content: center; align-items: center;
+    text-decoration: none;
+    color: white;
+    font-family: 'Space Mono', monospace; font-size: 0.6rem;
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(4px);
+    filter: url(#corona-filter);
+    transition: 0.3s;
+    opacity: 0;
 }
 
 body.is-ready .sub-bubble { opacity: 1; }
-.sub-bubble:hover { transform: translateY(-5px) scale(1.1); background: rgba(255, 255, 255, 0.6); color: #000; }
+
+/* 修正点：メニュー表示中もSNSリンクを消さない */
+body.is-menu-open .sub-bubble {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+/* ==========================================
+   8. スマホ・タブレット用調整
+   ========================================== */
+@media screen and (max-width: 1024px) {
+    /* iPad / MacBook 等での見切れ対策 */
+    .bubble { scale: 0.85; }
+    #main-logo { top: 52%; width: 160px; }
+}
 
 @media screen and (max-width: 768px) {
-    #main-logo { top: 58%; width: 130px; }
-    .bubble { --init-size: 105px !important; width: var(--init-size) !important; height: var(--init-size) !important; font-size: 0.6rem; }
-    .bubble.b5 { top: 8%; } 
-    .bubble.b1 { top: 20%; left: 10%; } 
-    .bubble.b2 { top: 22%; right: 2%; } 
-    .bubble.b3 { bottom: 18%; left: 5%; }
-    .bubble.b4 { bottom: 18%; right: 5%; }
-    #inner-content h1 { font-size: 2.2rem !important; }
+    /* iPhone 等のスマホ調整 */
+    #main-logo { top: 50%; width: 120px; }
+    
+    .bubble { --init-size: 100px !important; }
+    
+    /* スマホでは重ならないよう位置を再調整 */
+    .bubble.b5 { top: 12svh; } 
+    .bubble.b1 { top: 22svh; left: 5%; } 
+    .bubble.b2 { top: 25svh; right: 5%; } 
+    .bubble.b3 { bottom: 22svh; left: 5%; }
+    .bubble.b4 { bottom: 22svh; right: 5%; }
+
+    #inner-content h1 { font-size: 2rem !important; }
 }
