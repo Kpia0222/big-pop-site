@@ -46,13 +46,35 @@ function popBubble(element) {
     const pageData = {
         'MUSIC': {
             title: 'MUSIC',
-            desc: 'Exploring new soundscapes. Listen to my latest tracks.',
-            videoIds: ['IgpBulthSic'] // 動画IDを追加
+            desc: 'Main Feature: HAPPY NEWYEAR!',
+            mainVideo: 'IgpBulthSic',
+            subItems: [
+                { id: 'video1', type: 'video', label: 'WORK 01' },
+                { id: 'video2', type: 'video', label: 'WORK 02' },
+                { id: 'video3', type: 'link', label: 'ALBUM' },
+                { id: 'video4', type: 'video', label: 'WORK 03' }
+            ]
         },
-        'MIX': { title: 'MIX', desc: 'Non-stop sonic journeys. Special curated compilations.' },
-        'SING': { title: 'SING', desc: 'Vocal expressions. Collection of singing works.' },
-        'PLAY': { title: 'PLAY', desc: 'Visuals and interactive works. Experience the performance.' },
-        'LIVE': { title: 'LIVE', desc: 'Connect in real-time. Check upcoming schedules.' }
+        'MIX': {
+            title: 'MIX',
+            desc: 'Non-stop sonic journeys. Special curated compilations.',
+            mainVideo: 'MU1wqeOXRjk' // 追加: 夜撫でるメノウ / Ayase 歌ってみた
+        },
+        'SING': {
+            title: 'SING',
+            desc: 'Vocal expressions. Collection of singing works.',
+            mainVideo: '' // 必要に応じて追加してください
+        },
+        'PLAY': {
+            title: 'PLAY',
+            desc: 'Visuals and interactive works. Experience the performance.',
+            mainVideo: 'VuaXsTCrBJ8' // 追加: PLAY動画
+        },
+        'LIVE': {
+            title: 'LIVE',
+            desc: 'Connect in real-time. Check upcoming schedules.',
+            mainVideo: 'WXwGt7Ixwv0' // 追加: Futura Splat @Club COCOA
+        }
     };
     const data = pageData[labelText] || { title: labelText, desc: "Coming Soon..." };
 
@@ -95,12 +117,56 @@ function popBubble(element) {
         }
 
         inner.innerHTML = `
-         <div class="content-wrapper">
+         <div class="content-wrapper music-page">
             <h1 class="content-title">${data.title}</h1>
-            ${videoHTML}
+            <div class="main-feature">
+                <div class="video-container">
+                    <iframe src="https://www.youtube.com/embed/${data.mainVideo}" frameborder="0" allowfullscreen></iframe>
+                </div>
+            </div>
             <p class="content-desc">${data.desc}</p>
+            
+            <div id="sub-content-orbit"></div>
          </div>
         `;
+        // popBubble関数内のサブバブル生成ループ
+        if (data.subItems) {
+            const orbit = document.getElementById('sub-content-orbit');
+
+            // 配置エリアの設定（画面の端ぎりぎりに寄せる）
+            const marginX = window.innerWidth * 0.4;
+            const marginY = window.innerHeight * 0.35;
+
+            const basePositions = [
+                { x: marginX, y: -marginY }, // 右上
+                { x: marginX, y: marginY },  // 右下
+                { x: -marginX, y: marginY },  // 左下
+                { x: -marginX, y: -marginY }  // 左上
+            ];
+
+            data.subItems.slice(0, 4).forEach((item, index) => {
+                const sub = document.createElement('div');
+                sub.className = 'mini-bubble';
+                sub.innerHTML = `<span>${item.label}</span>`;
+
+                // 座標に大きなランダム幅を持たせて等間隔感をなくす
+                const randX = (Math.random() - 0.5) * window.innerWidth * 0.2;
+                const randY = (Math.random() - 0.5) * window.innerHeight * 0.2;
+
+                sub.style.setProperty('--target-x', `${basePositions[index].x + randX}px`);
+                sub.style.setProperty('--target-y', `${basePositions[index].y + randY}px`);
+                sub.style.setProperty('--random-rotate', `${(Math.random() - 0.5) * 30}deg`);
+
+                // メインバブルの計算済みCSSから色を完全にコピー
+                const mainColor = getComputedStyle(element).getPropertyValue('--bg-color');
+                sub.style.backgroundColor = mainColor; // 背景色
+                sub.style.setProperty('--bg-color', mainColor); // パルスアニメーション用変数
+
+                orbit.appendChild(sub);
+                // 出現タイミングをバラバラにして有機的な動きにする
+                setTimeout(() => sub.classList.add('show'), 1000 + (Math.random() * 800));
+            });
+        }
 
         area.classList.remove('hidden');
 

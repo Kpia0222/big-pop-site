@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
     <svg style="position: absolute; width: 0; height: 0;" xmlns="http://www.w3.org/2000/svg">
@@ -70,13 +72,8 @@
     </div>
 
     <div id="layer-loading">
-        <div class="noise-wrap">
-            <div class="noise-layer scanlines"></div>
-            <div id="noise-grain" class="noise-layer grain"></div>
-            <div id="noise-static" class="noise-layer static"></div>
-        </div>
         <div class="loading-ui">
-            <div class="loading-text">NOW LOADING</div>
+            <div class="loading-text glitch" data-text="NOW LOADING">NOW LOADING</div>
             <div class="loading-bar-container">
                 <div class="loading-bar"></div>
             </div>
@@ -85,4 +82,5 @@
 
     <script src="js/script.js"></script>
 </body>
+
 </html>

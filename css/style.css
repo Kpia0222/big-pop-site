@@ -180,72 +180,323 @@ body.is-switching .bubble, body.is-menu-open .bubble { pointer-events: none !imp
 }
 
 /* ==========================================
-   7. コンテンツ表示エリア
+   7. コンテンツ表示エリア (メインコンテナ)
    ========================================== */
+
+/* 画面中央に表示されるコンテンツの土台 */
 #content-area {
-    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    width: 90%; max-width: 800px; text-align: center;
-    pointer-events: none; opacity: 0; transition: opacity 0.6s ease-out;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 800px;
+    text-align: center;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.6s ease-out;
     z-index: 3000 !important;
 }
-#content-area.visible { opacity: 1; pointer-events: auto; }
-#inner-content h1 { color: white; font-size: 3.5rem; letter-spacing: 0.5rem; margin-bottom: 20px; }
-#inner-content p { color: rgba(255, 255, 255, 0.9); font-size: 1.2rem; line-height: 1.8; margin-bottom: 30px; }
-.back-button { display: inline-block !important; background: transparent; border: 1px solid white; color: white; padding: 12px 24px; cursor: pointer; font-family: 'Space Mono', monospace; transition: all 0.3s; }
-.back-button:hover { background: rgba(255,255,255,0.2); letter-spacing: 2px; }
 
-/* 動画の枠組み */
+/* 表示状態のクラス */
+#content-area.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* 内部のテキスト要素 (タイトル・説明文) */
+#inner-content h1 {
+    color: white;
+    font-size: 3.5rem;
+    letter-spacing: 0.5rem;
+    margin-bottom: 20px;
+}
+
+#inner-content p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.2rem;
+    line-height: 1.8;
+    margin-bottom: 30px;
+}
+
+/* 戻るボタン */
+.back-button {
+    display: inline-block !important;
+    background: transparent;
+    border: 1px solid white;
+    color: white;
+    padding: 12px 24px;
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    transition: all 0.3s;
+}
+
+.back-button:hover {
+    background: rgba(255,255,255,0.2);
+    letter-spacing: 2px;
+}
+
+/* ------------------------------------------
+   MUSICセクション：ビデオプレイヤー
+   ------------------------------------------ */
+
+/* YouTube埋め込み等の動画コンテナ */
 .video-container {
     width: 100%;
-    max-width: 640px; /* バブル内で大きすぎないように制限 */
+    max-width: 500px; /* 圧迫感を抑えたサイズ設定 */
     aspect-ratio: 16 / 9;
-    margin: 20px auto;
+    margin: 20px auto 30px;
     background: #000;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.6), 0 0 20px var(--bg-color);
+    /* 外側の光 (ネオンエフェクト) */
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .video-container iframe {
     width: 100%;
     height: 100%;
+    border: none;
 }
 
-/* タイトルと説明の装飾 */
-.content-title {
-    font-family: 'Space Mono', monospace;
-    font-size: 3rem;
-    letter-spacing: 0.5rem;
-    margin-bottom: 10px;
-    filter: drop-shadow(0 0 10px var(--bg-color));
+/* ------------------------------------------
+   MUSICセクション：サブコンテンツバブル (小)
+   ------------------------------------------ */
+
+/* --- style.css --- */
+
+/* サブコンテンツバブル（小型）のサイズ調整 */
+.sub-content-item {
+    /* 巨大バブルの約1/3の視覚的サイズに設定 */
+    width: 1px;  /* ここを調整（420pxの約1/3） */
+    height: 1px; 
+    border-radius: 50%;
+    
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 15px;
 }
 
-.content-desc {
-    font-size: 1rem;
-    color: rgba(255, 255, 255, 0.8);
-    max-width: 500px;
-    margin: 0 auto;
+/* アイコンとラベルもサイズに合わせて微調整 */
+.sub-content-item i, 
+.sub-content-item img {
+    width: 35px;
+    height: 35px;
+}
+
+.sub-content-item .label {
+    font-size: 0.8rem;
+    letter-spacing: 0.1rem;
+    margin-top: 8px;
+}
+
+.sub-content-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
 }
 
 /* ==========================================
-   8. ロード画面 & SNSアイコン
+   サブバブル (巨大・背景演出用)：メインと完全同期
+   ========================================== */
+
+/* メインバブル展開時に背後に現れる巨大な装飾用バブル */
+.mini-bubble {
+    position: absolute;
+    width: 45vw; 
+    height: 45vw;
+    min-width: 420px;
+    min-height: 420px;
+    max-width: 750px;
+    max-height: 750px;
+    
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 1.4rem;
+    font-family: 'Space Mono', monospace;
+    cursor: pointer;
+    pointer-events: auto;
+    opacity: 0;
+    
+    /* 演出：メインバブルと同じ液体アニメーションを適用 */
+    animation: corona-pulse 4s infinite ease-in-out alternate;
+    /* 彩度と明るさを抑え、背景に馴染ませる */
+    filter: url(#liquid-filter) url(#corona-filter) saturate(0.3) brightness(0.7);
+    
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    
+    /* 初期座標と遷移設定 */
+    transform: translate(-50%, -50%) scale(0) rotate(var(--random-rotate));
+    transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+    
+    z-index: -1; 
+    mix-blend-mode: screen; /* 重なり部分を美しく発光させる */
+}
+
+/* 表示アニメーション完了後の状態 */
+.mini-bubble.show {
+    opacity: 0.9;
+    transform: translate(calc(-50% + var(--target-x)), calc(-50% + var(--target-y))) scale(1) rotate(var(--random-rotate));
+}
+
+/* ホバー時の反応：鮮やかさを取り戻し、最前面に浮き上がる */
+.mini-bubble:hover {
+    opacity: 1;
+    z-index: 10;
+    filter: url(#liquid-filter) url(#corona-filter) saturate(1) brightness(1.1);
+    transform: translate(calc(-50% + var(--target-x)), calc(-50% + var(--target-y))) scale(1.05) rotate(0deg);
+    box-shadow: 0 0 80px rgba(255, 255, 255, 0.4);
+    mix-blend-mode: normal;
+}
+
+.mini-bubble span {
+    text-align: center;
+    pointer-events: none;
+}
+
+/* ==========================================
+   8. ロード画面 (背景ノイズ削除・テキストグリッチ維持)
    ========================================== */
 #layer-loading {
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
-    z-index: 9999; transition: opacity 1.5s ease, visibility 1.5s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    /* 背景を透過させ、背後のコンテンツが見えるように設定 */
+    background: rgba(0, 0, 0, 0.4); 
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    
+    z-index: 10000;
+    position: fixed;
+    inset: 0;
+    transition: opacity 1.5s ease, visibility 1.5s;
+    overflow: hidden;
 }
-body.is-ready #layer-loading { opacity: 0; visibility: hidden; pointer-events: none; }
 
-.loading-text { color: #fff; font-family: 'Space Mono', monospace; font-size: 1.4rem; letter-spacing: 0.8rem; margin-bottom: 30px; filter: url(#corona-filter); text-shadow: 0 0 10px rgba(255, 255, 255, 0.8); animation: loading-glow 3s infinite ease-in-out; }
-.loading-bar-container { width: 285px; height: 2px; background: rgba(255, 255, 255, 0.1); }
-.loading-bar { width: 100%; height: 100%; background: #fff; transform: scaleX(0); transform-origin: left; animation: loadAccumulate 2.5s forwards cubic-bezier(0.42, 0, 0.58, 1); filter: url(#corona-filter); }
+/* 準備完了時に消去 */
+body.is-ready #layer-loading {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
 
-@keyframes loadAccumulate { 0% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
-@keyframes loading-glow { 0%, 100% { opacity: 0.7; transform: scale(0.98); } 50% { opacity: 1; transform: scale(1.02); } }
+.loading-ui {
+    position: relative;
+    z-index: 20;
+    text-align: center;
+}
 
-/* SNSアイコン (モノクロ設定) */
+/* ------------------------------------------
+   テキスト：時空のズレ（グリッチ）
+   ------------------------------------------ */
+.glitch {
+    position: relative;
+    color: white;
+    font-family: 'Space Mono', monospace;
+    font-size: 1.4rem;
+    letter-spacing: 0.8rem;
+    margin-bottom: 30px;
+    /* 色収差（赤と青のズレ） */
+    text-shadow: 0.05em 0 0 rgba(255, 0, 0, 0.75),
+                -0.025em -0.05em 0 rgba(0, 255, 0, 0.75),
+                0.025em 0.05em 0 rgba(0, 0, 255, 0.75);
+    animation: glitch-main 0.5s infinite, loading-glow 3s infinite ease-in-out;
+}
+
+/* 擬似要素で文字を裂く (HTML側に data-text="NOW LOADING" が必要) */
+.glitch::before,
+.glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    opacity: 0.8;
+}
+
+.glitch::before {
+    animation: glitch-slice 0.4s cubic-bezier(.25, .46, .45, .94) infinite;
+    color: #ff00ff;
+    z-index: -1;
+    clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+    transform: translate(-5px);
+}
+
+.glitch::after {
+    animation: glitch-slice 0.4s cubic-bezier(.25, .46, .45, .94) reverse infinite;
+    color: #00ffff;
+    z-index: -2;
+    clip-path: polygon(0 80%, 100% 80%, 100% 100%, 0 100%);
+    transform: translate(5px);
+}
+
+/* ------------------------------------------
+   ゲージ（シンプル版：ノイズなし）
+   ------------------------------------------ */
+.loading-bar-container {
+    width: 285px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    position: relative;
+}
+
+.loading-bar {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #fff;
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: loadAccumulate 2.5s forwards cubic-bezier(0.42, 0, 0.58, 1);
+    filter: url(#corona-filter);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* ------------------------------------------
+   アニメーション
+   ------------------------------------------ */
+@keyframes loadAccumulate { 
+    0% { transform: scaleX(0); } 
+    100% { transform: scaleX(1); } 
+}
+
+@keyframes loading-glow { 
+    0%, 100% { opacity: 0.7; transform: scale(0.98); } 
+    50% { opacity: 1; transform: scale(1.02); } 
+}
+
+@keyframes glitch-main {
+    0% { transform: none; opacity: 1; }
+    7% { transform: skew(-3deg); opacity: 0.75; }
+    10% { transform: none; opacity: 1; }
+    27% { transform: none; }
+    30% { transform: skew(0.8deg); }
+    35% { transform: none; }
+}
+
+@keyframes glitch-slice {
+    0% { clip-path: inset(80% 0 0 0); transform: translate(-10px, 5px); }
+    20% { clip-path: inset(20% 0 60% 0); transform: translate(10px, -5px); }
+    40% { clip-path: inset(40% 0 40% 0); transform: translate(-5px, 0); }
+    60% { clip-path: inset(0% 0 80% 0); transform: translate(5px, 5px); }
+    80% { clip-path: inset(60% 0 20% 0); transform: translate(-10px, -2px); }
+    100% { clip-path: inset(10% 0 70% 0); transform: translate(0); }
+}
+
+/* ==========================================
+   9. SNSアイコン
+   ========================================== */
 .sub-bubble-container {
     position: fixed; bottom: 2%; left: 50%; transform: translateX(-50%);
     display: flex; justify-content: center; align-items: center; gap: 20px;
@@ -266,7 +517,7 @@ body.is-ready #layer-loading { opacity: 0; visibility: hidden; pointer-events: n
 body.is-menu-open .sub-bubble { opacity: 1 !important; pointer-events: auto !important; }
 
 /* ==========================================
-   9. レスポンシブ (スマホ用)
+   10. レスポンシブ (スマホ用)
    ========================================== */
 @media screen and (max-width: 768px) {
     #main-logo { top: 58%; width: 130px; margin-left: -65px; margin-top: -65px; }
