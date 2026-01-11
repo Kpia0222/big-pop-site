@@ -43,8 +43,6 @@ body, html {
     background-position: center;
     background-color: rgba(0, 0, 0, 0.04);
     background-blend-mode: darken;
-    cursor: pointer;
-    pointer-events: auto; /* 背景クリックを有効化 */
 }
 
 body.is-menu-open #layer-bg {
@@ -52,7 +50,7 @@ body.is-menu-open #layer-bg {
 }
 
 /* ==========================================
-   4. エントランス & 中央ロゴ (コロナエフェクト追加)
+   4. エントランス & 中央ロゴ (コロナエフェクト)
    ========================================== */
 #layer-entrance {
     display: flex;
@@ -77,16 +75,11 @@ body.is-ready #layer-entrance {
     width: 200px;
     height: auto;
     z-index: 6;
-    
-    /* ロゴにもコロナフィルタを適用 */
     filter: url(#liquid-filter) url(#corona-filter);
-    
-    /* ロゴ周囲の発光エフェクト */
     box-shadow: 
         0 0 40px 10px rgba(255, 255, 255, 0.1),
         0 0 80px 20px rgba(255, 255, 255, 0.05);
-    border-radius: 50%; /* box-shadowを円形に広げるため */
-
+    border-radius: 50%;
     animation: 
         liquid-look 0.8s ease-in-out infinite,
         logo-corona-pulse 4s infinite ease-in-out alternate;
@@ -172,7 +165,7 @@ body.is-menu-open .bubble {
     }
 }
 
-/* --- 個別配置 (PC用) --- */
+/* 個別配置 */
 .bubble.b5 { --init-size: 200px; --bg-color: #9933ff; width: var(--init-size); height: var(--init-size); top: 8%; left: 50%; transform: translateX(-50%); background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(170, 205, 150, 0.5)); }
 .bubble.b1 { --init-size: 260px; --bg-color: #ffcc00; width: var(--init-size); height: var(--init-size); top: 12%; left: 14%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(220, 130, 130, 0.5)); }
 .bubble.b2 { --init-size: 190px; --bg-color: #ff3366; width: var(--init-size); height: var(--init-size); top: 15%; right: 8%; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(220, 205, 140, 0.5)); }
@@ -210,7 +203,7 @@ body.is-menu-open .bubble {
 }
 
 /* ==========================================
-   7. コンテンツ表示エリア
+   7. コンテンツ表示エリア (BACKボタン有効化)
    ========================================== */
 #content-area {
     position: fixed;
@@ -218,23 +211,35 @@ body.is-menu-open .bubble {
     transform: translate(-50%, -50%);
     width: 90%; max-width: 800px;
     text-align: center;
-    pointer-events: none; /* 背景クリックを邪魔しない */
+    pointer-events: none;
     opacity: 0;
     transition: opacity 0.6s ease-out;
     z-index: 3000 !important;
 }
 
-#content-area.visible { opacity: 1; }
+#content-area.visible { 
+    opacity: 1;
+    pointer-events: auto; /* ボタンをクリック可能にする */
+}
 
-#inner-content { pointer-events: none; }
-#inner-content h1, #inner-content p { pointer-events: auto; }
+#inner-content h1 { color: white; font-size: 3.5rem; letter-spacing: 0.5rem; margin-bottom: 20px; }
+#inner-content p { color: rgba(255, 255, 255, 0.9); font-size: 1.2rem; line-height: 1.8; margin-bottom: 30px; }
 
-/* BACKボタンは非表示（背景クリックで戻るため） */
-.back-button { display: none !important; }
+.back-button { 
+    display: inline-block !important; 
+    background: transparent; 
+    border: 1px solid white; 
+    color: white; 
+    padding: 12px 24px; 
+    cursor: pointer; 
+    font-family: 'Space Mono', monospace; 
+    transition: all 0.3s;
+}
 
+.back-button:hover { background: rgba(255,255,255,0.2); letter-spacing: 2px; }
 
 /* ==========================================
-   8. ロード画面
+   8〜10. ロード・SNS・レスポンシブ (省略なし)
    ========================================== */
 #layer-loading {
     display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -246,15 +251,15 @@ body.is-ready #layer-loading { opacity: 0; visibility: hidden; pointer-events: n
 
 .loading-text { 
     color: #fff; font-family: 'Space Mono', monospace; font-size: 1.4rem; letter-spacing: 0.8rem; margin-bottom: 30px; 
-    filter: url(#corona-filter); text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.4);
+    filter: url(#corona-filter); text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
     animation: loading-glow 3s infinite ease-in-out;
 }
 
-.loading-bar-container { width: 250px; height: 2px; background: rgba(255, 255, 255, 0.1); overflow: visible; }
+.loading-bar-container { width: 250px; height: 2px; background: rgba(255, 255, 255, 0.1); }
 .loading-bar { 
     width: 100%; height: 100%; background: #fff; transform: scaleX(0); transform-origin: left; 
     animation: loadAccumulate 2.5s forwards cubic-bezier(0.42, 0, 0.58, 1);
-    filter: url(#corona-filter); box-shadow: 0 0 15px 2px rgba(255, 255, 255, 0.7), 0 0 30px 5px rgba(255, 255, 255, 0.3);
+    filter: url(#corona-filter);
 }
 
 @keyframes loadAccumulate { 0% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
@@ -263,9 +268,6 @@ body.is-ready #layer-loading { opacity: 0; visibility: hidden; pointer-events: n
     50% { opacity: 1; transform: scale(1.02); }
 }
 
-/* ==========================================
-   9. SNS用サブバブル
-   ========================================== */
 .sub-bubble-container {
     position: fixed; bottom: 2%; left: 50%; transform: translateX(-50%);
     display: flex; justify-content: center; align-items: center; gap: 20px; z-index: 15;
@@ -274,28 +276,20 @@ body.is-ready #layer-loading { opacity: 0; visibility: hidden; pointer-events: n
 .sub-bubble {
     width: 45px; height: 45px; border-radius: 50% !important; display: flex; justify-content: center; align-items: center; text-decoration: none;
     color: rgba(255, 255, 255, 0.9); font-family: 'Space Mono', monospace; font-size: 0.55rem; font-weight: bold;
-    filter: url(#corona-filter); background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(4px); box-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
-    transition: transform 0.3s ease, opacity 0.8s ease, background 0.3s; opacity: 0;
+    filter: url(#corona-filter); background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(4px);
+    transition: transform 0.3s ease, opacity 0.8s ease; opacity: 0;
 }
 
 body.is-ready .sub-bubble { opacity: 1; }
 .sub-bubble:hover { transform: translateY(-5px) scale(1.1); background: rgba(255, 255, 255, 0.6); color: #000; }
 
-body.is-menu-open .sub-bubble-container,
-body.is-switching .sub-bubble-container { opacity: 0 !important; pointer-events: none; }
-
-/* ==========================================
-   10. レスポンシブ調整 (スマホ)
-   ========================================== */
 @media screen and (max-width: 768px) {
     #main-logo { top: 58%; width: 130px; }
     .bubble { --init-size: 105px !important; width: var(--init-size) !important; height: var(--init-size) !important; font-size: 0.6rem; }
-
     .bubble.b5 { top: 8%; } 
-    .bubble.b1 { top: 20%; left: 10%; } /* MUSIC スマホ調整 */
+    .bubble.b1 { top: 20%; left: 10%; } 
     .bubble.b2 { top: 22%; right: 2%; } 
     .bubble.b3 { bottom: 18%; left: 5%; }
     .bubble.b4 { bottom: 18%; right: 5%; }
-
-    #content-area h1 { font-size: 2.2rem !important; }
+    #inner-content h1 { font-size: 2.2rem !important; }
 }
