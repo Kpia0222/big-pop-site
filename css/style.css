@@ -351,7 +351,8 @@ body.is-menu-open .sub-bubble {
 
     /* --- サブバブル（SNS）のスマホ専用配置 --- */
     .sub-bubble-container {
-        bottom: 20svh;             /* 画面下端からの距離をsvhで微調整 */
+        bottom: calc(40px * 0.5); /* 画面下端からの距離をsvhで微調整 */
+        
         width: 100%;              /* 横幅いっぱいに広げて中央揃えを確実に */
         left: 0;                  /* transformとの兼ね合いで調整 */
         transform: none;          /* left:0 + width:100% の時はtransform:translateXは不要 */
