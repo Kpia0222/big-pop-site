@@ -129,6 +129,13 @@ function popBubble(element) {
             <div id="sub-content-orbit"></div>
          </div>
         `;
+
+        // popBubble 関数内の演出部分
+        const breadcrumb = document.getElementById('header-breadcrumb');
+        if (breadcrumb) {
+            breadcrumb.innerHTML = `HOME <span class="breadcrumb-sep">></span> ${data.title}`;
+        }
+
         // popBubble関数内のサブバブル生成ループ
         if (data.subItems) {
             const orbit = document.getElementById('sub-content-orbit');
@@ -192,6 +199,12 @@ function backToEntrance() {
 
     const area = document.getElementById('content-area');
     area.classList.remove('visible');
+
+    // backToEntrance 関数内
+    const breadcrumb = document.getElementById('header-breadcrumb');
+    if (breadcrumb) {
+        breadcrumb.innerHTML = `HOME`;
+    }
 
     setTimeout(() => {
         area.classList.add('hidden');
@@ -354,75 +367,79 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 2000);
 });
 
-/* ==========================================
-   ヘッダーメニュー専用の展開ロジック
-   ========================================== */
 function openHeaderMenu(menuType) {
-    if (isTransitioning) return;
-    isTransitioning = true;
+    const panel = document.getElementById('side-panel');
+    const inner = document.getElementById('panel-inner');
 
-    // 既存のメインコンテンツが開いていれば閉じる
-    if (document.body.classList.contains('is-menu-open')) {
-        backToEntrance();
-        setTimeout(() => openHeaderMenu(menuType), 1500);
-        return;
-    }
-
-    const entrance = document.getElementById('layer-entrance');
-    const lineLayer = document.getElementById('bubble-lines');
-    
-    // 背景を暗くし、既存の要素をフェードアウト
-    document.body.classList.add('is-menu-open');
-    if (lineLayer) lineLayer.style.opacity = '0';
-    document.querySelectorAll('.bubble').forEach(b => b.style.opacity = '0');
-
-    // メニューごとのデータ
     const headerData = {
-        'ABOUT': [
-            { label: 'WHO WE ARE', info: 'Creative Studio Kpia.' },
-            { label: 'VISION', info: 'Breaking boundaries of digital art.' }
-        ],
-        'NEWS': [
-            { label: '2026.01', info: 'New Project Launched.' },
-            { label: 'UPDATE', info: 'System v2.0 Live.' }
-        ],
-        'CONTACT': [
-            { label: 'EMAIL', info: 'hello@kpia.example.com' },
-            { label: 'TWITTER', info: '@kpia_official' }
-        ]
+        'PROFILE': {
+            title: 'PROFILE',
+            content: `
+            <strong>NAME:</strong> Kpia<br>
+            <strong>ROLE:</strong> Composer / Mixer / Player<br><br>
+            2026年より活動を開始したクリエイター。<br>
+            音楽、映像、プログラミングを融合させた、
+            境界のない表現を追求しています。`
+        },
+
+        /* --- openHeaderMenu 関数内の EVENT データを更新 --- */
+
+        'EVENT': {
+            title: 'UPCOMING EVENT',
+            content: `
+        <div class="event-card">
+            <span class="status-badge">RESERVATIONS OPEN</span>
+            
+            <div class="event-image-container">
+                <img src="images/event_calendar_2026_01.jpg" alt="Event Calendar" class="event-calendar-img">
+            </div>
+
+            <div class="event-details">
+                <h3>HAPPY NEW YEAR LIVE 2026</h3>
+                <p><strong>DATE:</strong> 2026.01.25 (SUN)<br>
+                <strong>TIME:</strong> 21:00 START (JST)<br>
+                <strong>VENUE:</strong> YouTube LIVE</p>
+            </div>
+
+            <a href="https://www.youtube.com/watch?v=WXwGt7Ixwv0" target="_blank" class="yt-reserve-button">
+                <i class="fab fa-youtube"></i> SET REMINDER (視聴予約)
+            </a>
+        </div>
+        
+        <div class="event-info-footer">
+            <p>※配信開始の10分前から待機所がオープンします。</p>
+        </div>
+    `
+        },
+
+        'ABOUT': {
+            title: 'ABOUT',
+            content: 'KPIA ENTERTAINMENT は、デジタル空間における新たな体験を創造するクリエイティブユニットです。'
+        },
+
+        'NEWS': {
+            title: 'NEWS',
+            content: '2026.01.12: SYSTEM UPDATE 完成。<br>2026.01.10: サイトデザインをリニューアル。'
+        },
+
+        'CONTACT': {
+            title: 'CONTACT',
+            content: 'Email: hello@kpia.example.com<br>SNS: @kpia_official'
+        }
     };
 
-    const items = headerData[menuType] || [];
-    
-    // サブバブル生成（既存の orbit 仕組みを再利用）
-    const orbit = document.createElement('div');
-    orbit.id = 'header-sub-orbit';
-    document.body.appendChild(orbit);
+    const data = headerData[menuType];
+    if (!data) return;
 
-    items.forEach((item, index) => {
-        const sub = document.createElement('div');
-        sub.className = 'sub-content-item header-info-bubble';
-        sub.innerHTML = `<span class="label">${item.label}</span>`;
-        
-        // 中央ロゴの周りに配置
-        const angle = (index / items.length) * Math.PI * 2;
-        const radius = 200;
-        const x = Math.cos(angle) * radius;
-        const y = Math.sin(angle) * radius;
-
-        sub.style.left = `calc(50% + ${x}px)`;
-        sub.style.top = `calc(50% + ${y}px)`;
-        sub.style.transform = 'translate(-50%, -50%) scale(0)';
-        
-        // クリックで情報を表示（簡易アラートまたはコンソール）
-        sub.onclick = () => alert(item.info);
-
-        orbit.appendChild(sub);
-        setTimeout(() => {
-            sub.style.transform = 'translate(-50%, -50%) scale(1)';
-            sub.style.opacity = '1';
-        }, 100 * index);
-    });
-
-    isTransitioning = false;
+    inner.innerHTML = `<h2>${data.title}</h2><p>${data.content}</p>`;
+    panel.classList.add('show');
 }
+
+function closePanel() {
+    document.getElementById('side-panel').classList.remove('show');
+}
+
+// パネルの外（左側の暗い部分）をクリックしても閉じる
+document.getElementById('side-panel').addEventListener('click', (e) => {
+    if (e.target.id === 'side-panel') closePanel();
+});

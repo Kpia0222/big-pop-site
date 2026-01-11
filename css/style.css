@@ -594,9 +594,14 @@ body.is-menu-open .sub-bubble { opacity: 1 !important; pointer-events: auto !imp
     color: rgba(255, 255, 255, 0.5);
     font-family: 'Space Mono', monospace;
     font-size: 0.85rem;
-    margin-right: 20px;
-    border-right: 1px solid rgba(255, 255, 255, 0.2);
-    padding-right: 20px;
+    
+    /* 仕切り線を「右」から「左」に変更 */
+    margin-left: 20px;
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    border-right: none; /* もし残っていたら消す */
+    padding-left: 20px;
+    padding-right: 0;
+    
     letter-spacing: 1px;
 }
 
@@ -605,21 +610,171 @@ body.is-menu-open .sub-bubble { opacity: 1 !important; pointer-events: auto !imp
     font-weight: bold;
 }
 
-/* ヘッダーメニューから出るサブバブル */
-.header-info-bubble {
+/* サイドパネル外枠 */
+.panel-overlay {
     position: fixed;
-    width: 110px !important;
-    height: 110px !important;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(8px);
-    z-index: 4500;
-    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    opacity: 0;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(0px); /* 最初はぼかさない */
+    display: flex;
+    justify-content: flex-end; /* 右側に寄せる */
+    z-index: 9000;
+    visibility: hidden;
+    transition: all 0.5s ease;
 }
 
-.header-info-bubble:hover {
-    background: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+.panel-overlay.show {
+    visibility: visible;
+    backdrop-filter: blur(8px);
+}
+
+/* パネル本体 */
+.panel-content {
+    width: 450px;
+    height: 100%;
+    background: rgba(10, 10, 10, 0.85);
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 60px 40px;
+    transform: translateX(100%); /* 画面外へ隠す */
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-overlay.show .panel-content {
+    transform: translateX(0); /* スライドイン */
+}
+
+/* 閉じるボタン */
+.panel-close {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     cursor: pointer;
+    transition: 0.3s;
+}
+
+.panel-close:hover {
+    background: white;
+    color: black;
+}
+
+/* パネル内テキスト */
+#panel-inner h2 {
+    font-family: 'Space Mono', monospace;
+    font-size: 2rem;
+    letter-spacing: 5px;
+    margin-bottom: 30px;
+    color: white;
+}
+
+#panel-inner p {
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 2;
+    font-size: 0.95rem;
+}
+
+/* イベントボタン特有のスタイル */
+.btn-event {
+    color: #00ffcc !important; /* 少し色味を変えて目立たせる */
+    position: relative;
+}
+
+/* 小さなドットのバッジを表示 */
+.btn-event::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    right: -8px;
+    width: 6px;
+    height: 6px;
+    background: #ff3366;
+    border-radius: 50%;
+    animation: event-pulse 1.5s infinite;
+}
+
+@keyframes event-pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 51, 102, 0.7); }
+    70% { transform: scale(1.2); box-shadow: 0 0 0 6px rgba(255, 51, 102, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 51, 102, 0); }
+}
+
+/* パネル内のカード装飾 */
+.event-card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border: 1px solid rgba(0, 255, 204, 0.3);
+    border-radius: 4px;
+}
+
+.status-badge {
+    display: inline-block;
+    background: #00ffcc;
+    color: #000;
+    padding: 2px 8px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* イベント画像（カレンダー等）のコンテナ */
+.event-image-container {
+    width: 100%;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.event-calendar-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: brightness(0.9) contrast(1.1);
+    transition: transform 0.3s ease;
+}
+
+.event-calendar-img:hover {
+    transform: scale(1.03); /* 少しズームアップ */
+}
+
+/* YouTube予約ボタン */
+.yt-reserve-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 15px;
+    margin-top: 20px;
+    background: #ff0000; /* YouTube Red */
+    color: #fff;
+    text-decoration: none;
+    font-family: 'Space Mono', monospace;
+    font-weight: bold;
+    font-size: 0.9rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+}
+
+.yt-reserve-button:hover {
+    background: #cc0000;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 0, 0, 0.5);
+    letter-spacing: 1px;
+}
+
+.event-info-footer {
+    margin-top: 20px;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-align: center;
 }

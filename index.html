@@ -11,13 +11,21 @@
 
 <body>
     <header class="main-header">
-        <div class="header-logo">HOME</div>
+        <div class="header-group-left">
+            <div class="header-logo" id="header-breadcrumb">HOME</div>
+        </div>
+
         <nav class="header-nav">
             <ul>
-                <li class="header-clock"><span id="current-time">00:00:00</span> JST</li>
+                <li><a href="javascript:void(0)" onclick="openHeaderMenu('PROFILE')">PROFILE</a></li>
+
+                <li><a href="javascript:void(0)" class="btn-event" onclick="openHeaderMenu('EVENT')">EVENT</a></li>
+
                 <li><a href="javascript:void(0)" onclick="openHeaderMenu('ABOUT')">ABOUT</a></li>
                 <li><a href="javascript:void(0)" onclick="openHeaderMenu('NEWS')">NEWS</a></li>
                 <li><a href="javascript:void(0)" onclick="openHeaderMenu('CONTACT')">CONTACT</a></li>
+
+                <li class="header-clock"><span id="current-time">00:00:00</span> JST</li>
             </ul>
         </nav>
     </header>
@@ -91,7 +99,13 @@
         </div>
     </div>
 
-
+    <div id="side-panel" class="panel-overlay">
+        <div class="panel-content">
+            <button class="panel-close" onclick="closePanel()">×</button>
+            <div id="panel-inner">
+            </div>
+        </div>
+    </div>
 
     <script src="js/script.js"></script>
 </body>
