@@ -10,6 +10,17 @@
 </head>
 
 <body>
+    <header class="main-header">
+        <div class="header-logo">HOME</div>
+        <nav class="header-nav">
+            <ul>
+                <li class="header-clock"><span id="current-time">00:00:00</span> JST</li>
+                <li><a href="javascript:void(0)" onclick="openHeaderMenu('ABOUT')">ABOUT</a></li>
+                <li><a href="javascript:void(0)" onclick="openHeaderMenu('NEWS')">NEWS</a></li>
+                <li><a href="javascript:void(0)" onclick="openHeaderMenu('CONTACT')">CONTACT</a></li>
+            </ul>
+        </nav>
+    </header>
 
     <svg style="position: absolute; width: 0; height: 0;" xmlns="http://www.w3.org/2000/svg">
         <filter id="corona-filter">
@@ -79,6 +90,8 @@
             </div>
         </div>
     </div>
+
+
 
     <script src="js/script.js"></script>
 </body>

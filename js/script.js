@@ -325,3 +325,104 @@ document.addEventListener('mousemove', (e) => {
 
     logo.style.transform = `translate(${moveX}px, ${moveY}px)`;
 });
+
+/* ==========================================
+   時刻更新のロジック
+   ========================================== */
+function updateClock() {
+    const timeDisplay = document.getElementById('current-time');
+    if (!timeDisplay) return;
+
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+
+    timeDisplay.innerText = `${h}:${m}:${s}`;
+}
+
+// 既存のDOMContentLoaded内に追記
+document.addEventListener('DOMContentLoaded', () => {
+    // 時刻更新を開始
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // ...既存の処理...
+    setTimeout(() => {
+        document.body.classList.add('is-ready');
+        requestAnimationFrame(updateLines);
+    }, 2000);
+});
+
+/* ==========================================
+   ヘッダーメニュー専用の展開ロジック
+   ========================================== */
+function openHeaderMenu(menuType) {
+    if (isTransitioning) return;
+    isTransitioning = true;
+
+    // 既存のメインコンテンツが開いていれば閉じる
+    if (document.body.classList.contains('is-menu-open')) {
+        backToEntrance();
+        setTimeout(() => openHeaderMenu(menuType), 1500);
+        return;
+    }
+
+    const entrance = document.getElementById('layer-entrance');
+    const lineLayer = document.getElementById('bubble-lines');
+    
+    // 背景を暗くし、既存の要素をフェードアウト
+    document.body.classList.add('is-menu-open');
+    if (lineLayer) lineLayer.style.opacity = '0';
+    document.querySelectorAll('.bubble').forEach(b => b.style.opacity = '0');
+
+    // メニューごとのデータ
+    const headerData = {
+        'ABOUT': [
+            { label: 'WHO WE ARE', info: 'Creative Studio Kpia.' },
+            { label: 'VISION', info: 'Breaking boundaries of digital art.' }
+        ],
+        'NEWS': [
+            { label: '2026.01', info: 'New Project Launched.' },
+            { label: 'UPDATE', info: 'System v2.0 Live.' }
+        ],
+        'CONTACT': [
+            { label: 'EMAIL', info: 'hello@kpia.example.com' },
+            { label: 'TWITTER', info: '@kpia_official' }
+        ]
+    };
+
+    const items = headerData[menuType] || [];
+    
+    // サブバブル生成（既存の orbit 仕組みを再利用）
+    const orbit = document.createElement('div');
+    orbit.id = 'header-sub-orbit';
+    document.body.appendChild(orbit);
+
+    items.forEach((item, index) => {
+        const sub = document.createElement('div');
+        sub.className = 'sub-content-item header-info-bubble';
+        sub.innerHTML = `<span class="label">${item.label}</span>`;
+        
+        // 中央ロゴの周りに配置
+        const angle = (index / items.length) * Math.PI * 2;
+        const radius = 200;
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+
+        sub.style.left = `calc(50% + ${x}px)`;
+        sub.style.top = `calc(50% + ${y}px)`;
+        sub.style.transform = 'translate(-50%, -50%) scale(0)';
+        
+        // クリックで情報を表示（簡易アラートまたはコンソール）
+        sub.onclick = () => alert(item.info);
+
+        orbit.appendChild(sub);
+        setTimeout(() => {
+            sub.style.transform = 'translate(-50%, -50%) scale(1)';
+            sub.style.opacity = '1';
+        }, 100 * index);
+    });
+
+    isTransitioning = false;
+}

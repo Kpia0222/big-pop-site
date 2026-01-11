@@ -531,3 +531,95 @@ body.is-menu-open .sub-bubble { opacity: 1 !important; pointer-events: auto !imp
     .sub-bubble-container { bottom: 18svh; width: 100%; left: 0; transform: none; gap: 12px; }
     .sub-bubble { width: 40px; height: 40px; }
 }
+
+/* ==========================================
+   11.ヘッダー画面
+   ========================================== */
+.main-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+    z-index: 5000; /* バブル(4000)より前面に配置 */
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-logo {
+    font-family: 'Space Mono', monospace;
+    color: white;
+    font-weight: bold;
+    letter-spacing: 2px;
+    font-size: 1.2rem;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.header-nav ul {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+}
+
+.header-nav a {
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.header-nav a:hover {
+    color: white;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+    letter-spacing: 1px;
+}
+
+/* スマホ対応 */
+@media screen and (max-width: 768px) {
+    .main-header {
+        padding: 0 20px;
+    }
+    .header-nav {
+        display: none; /* スマホではナビを非表示にするかハンバーガーに変更 */
+    }
+}
+
+.header-clock {
+    color: rgba(255, 255, 255, 0.5);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    margin-right: 20px;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    padding-right: 20px;
+    letter-spacing: 1px;
+}
+
+#current-time {
+    color: white;
+    font-weight: bold;
+}
+
+/* ヘッダーメニューから出るサブバブル */
+.header-info-bubble {
+    position: fixed;
+    width: 110px !important;
+    height: 110px !important;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(8px);
+    z-index: 4500;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    opacity: 0;
+}
+
+.header-info-bubble:hover {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+}
