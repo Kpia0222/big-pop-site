@@ -339,30 +339,33 @@ body.is-ready #layer-loading { opacity: 0; visibility: hidden; pointer-events: n
 .sub-bubble {
     width: 45px;
     height: 45px;
+    border: 1px solid rgba(255, 255, 255, 0.3); /* 繊細な枠線を追加 */
     border-radius: 50% !important;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden; /* 画像が円からはみ出さないように */
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(4px);
-    transition: all 0.3s ease;
-    
+    transition: all 0.3s ease;    
 }
 
+/* サブバブル（SNSアイコン）のモノクロ設定 */
 .sub-bubble img {
-    width: 65%;   /* 円に対して少し小さめに配置すると綺麗です */
+    width: 65%;
     height: 65%;
-    object-fit: contain; /* 画像のアスペクト比を維持 */
-    filter: drop-shadow(0 0 2px rgba(0,0,0,0.2)); /* 視認性アップ */
-    /*filter: url(#corona-filter) drop-shadow(0 0 2px rgba(0,0,0,0.2));*/
-    animation: icon-shake 0.2s infinite alternate;
+    object-fit: contain;
+    /* --- モノクロ化の設定 --- */
+    filter: grayscale(100%) brightness(1.2) drop-shadow(0 0 2px rgba(0,0,0,0.2));
+    opacity: 0.7; /* 少し透かすと背景に馴染みます */
+    transition: all 0.3s ease;
 }
 
-/* ホバー時に画像を少し大きく強調 */
+/* ホバー時に色を戻す、または強調する演出 */
 .sub-bubble:hover img {
+    filter: grayscale(0%) brightness(1.5) drop-shadow(0 0 5px rgba(255,255,255,0.5));
+    opacity: 1;
     transform: scale(1.1);
-    filter: brightness(1.2);
 }
 
 body.is-ready .sub-bubble { opacity: 1; }
